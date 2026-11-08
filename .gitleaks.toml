@@ -14,4 +14,6 @@ useDefault = true
 #   providers/linkedin_company.py:   from .linkedin import LinkedInProvider
 [allowlist]
 description = "Project allowlist: ignore LinkedInProvider class-name imports"
-regexes = ['''LinkedInProvider''']
+# A Git commit SHA documented as a reference to the BrightBean upstream revision
+# is not a credential. The historical commit containing this value is scanned.
+regexes = ['''LinkedInProvider''', '''1d11c52007a3f714979ff1b071d153e69a8c274a''']
