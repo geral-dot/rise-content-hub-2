@@ -37,9 +37,12 @@ class EditorialPolicyTests(unittest.TestCase):
         self.assertFalse(state.decision(1, "visual", False).can_publish(True, True))
 
     def test_input_validation(self):
-        with self.assertRaises(ValueError): ApprovalState(0)
-        with self.assertRaises(ValueError): ApprovalState(1).decision(1, "other", True)
-        with self.assertRaises(ValueError): ApprovalState(2).change_version(2)
+        with self.assertRaises(ValueError):
+            ApprovalState(0)
+        with self.assertRaises(ValueError):
+            ApprovalState(1).decision(1, "other", True)
+        with self.assertRaises(ValueError):
+            ApprovalState(2).change_version(2)
 
     def test_client_visibility(self):
         for statuses in (["draft"], ["pending_review"], ["approved", "scheduled"], []):
