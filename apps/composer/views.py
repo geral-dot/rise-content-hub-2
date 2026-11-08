@@ -1016,10 +1016,13 @@ def save_post(request, workspace_id, post_id=None):
         post.author = request.user
     # RISE_GUARD_COMPOSER: pending approvals never enter scheduled queues.
     if action in {"schedule", "publish_now", "add_to_queue", "add_to_queue_priority"}:
-        from django_rise_agency.services import rise_dual_approval_enabled, require_rise_post_approved
+        from django_rise_agency.services import require_rise_post_approved, rise_dual_approval_enabled
+
         if rise_dual_approval_enabled(workspace.id):
             if not post_id:
-                return JsonResponse({"errors": {"approval": "RISE: guarde como rascunho e solicite aprovação"}}, status=409)
+                return JsonResponse(
+                    {"errors": {"approval": "RISE: guarde como rascunho e solicite aprovação"}}, status=409
+                )
             try:
                 require_rise_post_approved(post)
             except ValueError as exc:
@@ -1342,6 +1345,7 @@ def transition_platform_post(request, workspace_id, post_id, platform_post_id):
         try:
             require_publishable(pp)
             from django_rise_agency.services import require_rise_publishable
+
             require_rise_publishable(pp)  # RISE_GUARD_ACCOUNT_SCHEDULE
         except ValueError as exc:
             return JsonResponse({"error": str(exc)}, status=400)
@@ -3668,6 +3672,7 @@ def csv_confirm_import(request, workspace_id):
                     initial_pp_status = "scheduled"
                     # RISE_GUARD_CSV: imports never bypass client approval.
                     from django_rise_agency.services import rise_dual_approval_enabled
+
                     if rise_dual_approval_enabled(workspace.id):
                         post.proposed_publish_at = post.scheduled_at
                         post.scheduled_at = None

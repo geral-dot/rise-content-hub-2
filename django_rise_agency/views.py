@@ -3,8 +3,8 @@
 Native BrightBean client portal magic-link sessions are NOT yet integrated;
 this first pilot uses authenticated Django workspace members only.
 """
+
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_POST
@@ -13,14 +13,19 @@ from apps.composer.models import Post
 from apps.members.models import WorkspaceMembership
 from apps.workspaces.models import Workspace
 
-from .services import approve_component, approval_status, rise_dual_approval_enabled
+from .services import approval_status, approve_component, rise_dual_approval_enabled
 
 
 def _authorized_workspace(request, workspace_id):
     workspace = get_object_or_404(Workspace, pk=workspace_id)
-    membership = WorkspaceMembership.objects.filter(
-        workspace=workspace, user=request.user,
-    ).select_related("custom_role").first()
+    membership = (
+        WorkspaceMembership.objects.filter(
+            workspace=workspace,
+            user=request.user,
+        )
+        .select_related("custom_role")
+        .first()
+    )
     if membership is None or not membership.effective_permissions.get("approve_posts", False):
         # Avoid exposing existence of another organisation's workspace.
         raise Http404("Área não disponível")
@@ -36,16 +41,20 @@ def approvals(request, workspace_id):
     posts = Post.objects.filter(workspace_id=workspace.id)
     if not membership.effective_permissions.get("create_posts", False):
         posts = posts.filter(platform_posts__status="pending_client").distinct()
-    posts = (posts.prefetch_related("platform_posts", "media_attachments__media_asset")
-             .order_by("-created_at")[:60])
+    posts = posts.prefetch_related("platform_posts", "media_attachments__media_asset").order_by("-created_at")[:60]
     rows = []
     for post in posts:
         # Keep all customer copy safe for HTML autoescape in the template.
         state = approval_status(post)
         rows.append({"post": post, "state": state})
-    return render(request, "django_rise_agency/approvals.html", {
-        "workspace": workspace, "rows": rows,
-    })
+    return render(
+        request,
+        "django_rise_agency/approvals.html",
+        {
+            "workspace": workspace,
+            "rows": rows,
+        },
+    )
 
 
 @login_required

@@ -4,17 +4,17 @@ Run only after installing the upstream project on a disposable database:
     python manage.py test django_rise_agency.tests_django
 These tests MUST NOT be mistaken for the offline tests shipped in /tests.
 """
+
 from django.test import TestCase
 
-from apps.composer.models import Post
+from apps.composer.models import Post, PostMedia
 from apps.media_library.models import MediaAsset
-from apps.composer.models import PostMedia
 from apps.organizations.models import Organization
 from apps.workspaces.models import Workspace
 
-from .models import RiseApprovalGate, RiseBrandProfile, RiseRetainer
 from .fingerprint import snapshot_digest
-from .services import editorial_snapshot, require_rise_post_approved, require_rise_publishable
+from .models import RiseApprovalGate, RiseBrandProfile, RiseRetainer
+from .services import editorial_snapshot, require_rise_post_approved
 
 
 class RiseDjangoIntegrationTests(TestCase):
@@ -33,8 +33,10 @@ class RiseDjangoIntegrationTests(TestCase):
     def test_dual_approval_needs_visual(self):
         RiseBrandProfile.objects.create(workspace=self.workspace)
         gate = RiseApprovalGate.objects.create(
-            post=self.post, snapshot_digest=snapshot_digest(editorial_snapshot(self.post)),
-            copy_approved=True, visual_approved=True,
+            post=self.post,
+            snapshot_digest=snapshot_digest(editorial_snapshot(self.post)),
+            copy_approved=True,
+            visual_approved=True,
         )
         self.assertTrue(gate.approved)
         with self.assertRaises(ValueError):
@@ -43,13 +45,18 @@ class RiseDjangoIntegrationTests(TestCase):
     def test_changes_to_caption_invalidate_approval(self):
         RiseBrandProfile.objects.create(workspace=self.workspace)
         asset = MediaAsset.objects.create(
-            organization=self.organization, workspace=self.workspace,
-            filename="image.jpg", file="media_library/image.jpg", media_type="image",
+            organization=self.organization,
+            workspace=self.workspace,
+            filename="image.jpg",
+            file="media_library/image.jpg",
+            media_type="image",
             file_size=200,
         )
         PostMedia.objects.create(post=self.post, media_asset=asset, position=0)
         digest = snapshot_digest(editorial_snapshot(self.post))
-        RiseApprovalGate.objects.create(post=self.post, snapshot_digest=digest, copy_approved=True, visual_approved=True)
+        RiseApprovalGate.objects.create(
+            post=self.post, snapshot_digest=digest, copy_approved=True, visual_approved=True
+        )
         require_rise_post_approved(self.post)
         self.post.caption = "Texto alterado depois da aprovação"
         self.post.save(update_fields=["caption", "updated_at"])

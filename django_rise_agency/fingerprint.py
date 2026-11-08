@@ -1,4 +1,5 @@
 """Stable JSON digest for exactly what was approved (no Django dependency)."""
+
 import hashlib
 import json
 

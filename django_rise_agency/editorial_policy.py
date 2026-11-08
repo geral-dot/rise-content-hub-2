@@ -2,16 +2,26 @@
 
 # Authored options that materially change how the audience will see a post.
 # Never include provider response IDs/timestamps in the approval fingerprint.
-EDITORIAL_PLATFORM_EXTRA_KEYS = frozenset({
-    "post_type", "privacy_level", "board_id", "thumbnail_asset_id",
-    "cover_image_asset_id", "tags", "description", "disable_comments",
-    "is_aigc", "audience", "category_id", "youtube_settings",
-})
+EDITORIAL_PLATFORM_EXTRA_KEYS = frozenset(
+    {
+        "post_type",
+        "privacy_level",
+        "board_id",
+        "thumbnail_asset_id",
+        "cover_image_asset_id",
+        "tags",
+        "description",
+        "disable_comments",
+        "is_aigc",
+        "audience",
+        "category_id",
+        "youtube_settings",
+    }
+)
 
 
 def editorial_platform_options(platform_extra):
-    return {key: value for key, value in (platform_extra or {}).items()
-            if key in EDITORIAL_PLATFORM_EXTRA_KEYS}
+    return {key: value for key, value in (platform_extra or {}).items() if key in EDITORIAL_PLATFORM_EXTRA_KEYS}
 
 
 def client_can_review(statuses):

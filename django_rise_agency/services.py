@@ -3,21 +3,19 @@
 The last publisher hook is authoritative. These helpers never submit to a
 social API and do not auto-approve the native BrightBean workflow.
 """
+
 from django.db import transaction
 
-from .fingerprint import snapshot_digest
 from .editorial_policy import editorial_platform_options
+from .fingerprint import snapshot_digest
 from .models import RiseApprovalGate, RiseApprovalHistory, RiseBrandProfile
-
 
 LOCKED_STATES = {"publishing", "published", "partially_published"}
 
 
 def rise_dual_approval_enabled(workspace_id):
     """Opt-in: no RISE profile means native BrightBean behaviour is untouched."""
-    return RiseBrandProfile.objects.filter(
-        workspace_id=workspace_id, enforce_dual_approval=True
-    ).exists()
+    return RiseBrandProfile.objects.filter(workspace_id=workspace_id, enforce_dual_approval=True).exists()
 
 
 def editorial_snapshot(post):
@@ -31,30 +29,34 @@ def editorial_snapshot(post):
     attachments = post.media_attachments.select_related("media_asset").order_by("position", "id")
     for attachment in attachments:
         asset = attachment.media_asset
-        media.append({
-            "asset_id": str(attachment.media_asset_id),
-            "asset_version_id": str(asset.current_version_id or ""),
-            "asset_path": asset.file.name if asset.file else "",
-            "asset_size": asset.file_size,
-            "asset_type": asset.media_type,
-            "position": attachment.position,
-            "alt_text": attachment.alt_text,
-            "overrides": attachment.platform_overrides,
-        })
+        media.append(
+            {
+                "asset_id": str(attachment.media_asset_id),
+                "asset_version_id": str(asset.current_version_id or ""),
+                "asset_path": asset.file.name if asset.file else "",
+                "asset_size": asset.file_size,
+                "asset_type": asset.media_type,
+                "position": attachment.position,
+                "alt_text": attachment.alt_text,
+                "overrides": attachment.platform_overrides,
+            }
+        )
     platform_variants = []
     for pp in post.platform_posts.order_by("id"):
-        platform_variants.append({
-            "platform_post_id": str(pp.id),
-            "social_account_id": str(pp.social_account_id),
-            "title": pp.platform_specific_title,
-            "caption": pp.platform_specific_caption,
-            "first_comment": pp.platform_specific_first_comment,
-            "media": pp.platform_specific_media,
-            # Provider responses are merged into platform_extra after publishing.
-            # Hash only editorial selections so one successful channel does not
-            # invalidate approvals while its sibling channels are still queued.
-            "editorial_options": editorial_platform_options(pp.platform_extra),
-        })
+        platform_variants.append(
+            {
+                "platform_post_id": str(pp.id),
+                "social_account_id": str(pp.social_account_id),
+                "title": pp.platform_specific_title,
+                "caption": pp.platform_specific_caption,
+                "first_comment": pp.platform_specific_first_comment,
+                "media": pp.platform_specific_media,
+                # Provider responses are merged into platform_extra after publishing.
+                # Hash only editorial selections so one successful channel does not
+                # invalidate approvals while its sibling channels are still queued.
+                "editorial_options": editorial_platform_options(pp.platform_extra),
+            }
+        )
     return {
         "title": post.title,
         "caption": post.caption,
@@ -77,9 +79,14 @@ def _actor_membership(actor, post):
 
     if not actor or not getattr(actor, "pk", None) or not getattr(actor, "is_authenticated", False):
         return None
-    membership = WorkspaceMembership.objects.filter(
-        user_id=actor.pk, workspace_id=post.workspace_id,
-    ).select_related("custom_role").first()
+    membership = (
+        WorkspaceMembership.objects.filter(
+            user_id=actor.pk,
+            workspace_id=post.workspace_id,
+        )
+        .select_related("custom_role")
+        .first()
+    )
     return membership if membership and membership.effective_permissions.get("approve_posts", False) else None
 
 
@@ -99,9 +106,10 @@ def approve_component(post, actor, component, approved):
     if membership is None:
         raise PermissionError("Sem permissão para aprovar esta publicação")
     # Client accounts may not see or act on internal drafts.
-    if not membership.effective_permissions.get("create_posts", False) and not post.platform_posts.filter(
-        status="pending_client"
-    ).exists():
+    if (
+        not membership.effective_permissions.get("create_posts", False)
+        and not post.platform_posts.filter(status="pending_client").exists()
+    ):
         raise PermissionError("Esta publicação ainda não está disponível para aprovação do cliente")
     if not rise_dual_approval_enabled(post.workspace_id):
         raise ValueError("A aprovação dupla RISE não está ativa nesta marca")
@@ -125,13 +133,23 @@ def approve_component(post, actor, component, approved):
         gate.copy_approved = bool(approved)
     else:
         gate.visual_approved = bool(approved)
-    gate.save(update_fields=[
-        "content_version", "snapshot_digest", "copy_approved", "visual_approved", "updated_at",
-    ])
+    gate.save(
+        update_fields=[
+            "content_version",
+            "snapshot_digest",
+            "copy_approved",
+            "visual_approved",
+            "updated_at",
+        ]
+    )
     RiseApprovalHistory.objects.create(
-        gate=gate, post_id_at_decision=post.pk, content_version=gate.content_version,
-        snapshot_digest=digest, component=component,
-        approved=bool(approved), actor=actor,
+        gate=gate,
+        post_id_at_decision=post.pk,
+        content_version=gate.content_version,
+        snapshot_digest=digest,
+        component=component,
+        approved=bool(approved),
+        actor=actor,
     )
     return gate
 

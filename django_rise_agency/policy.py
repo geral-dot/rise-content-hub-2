@@ -1,4 +1,5 @@
 """RISE editorial policy: dependency-free rules for approval of post version."""
+
 from dataclasses import dataclass
 
 

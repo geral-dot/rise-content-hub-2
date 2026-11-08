@@ -2,12 +2,24 @@
 """Audit a RISE WordPress 1.11 JSON export without changing any target DB.
 Usage: python validate_export.py /path/rise-legacy.json [--report report.json]
 """
+
 import argparse
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
-SENSITIVE = ("password", "passwd", "secret", "token", "api_key", "apikey", "client_secret", "credential", "authorization", "auth_code")
+SENSITIVE = (
+    "password",
+    "passwd",
+    "secret",
+    "token",
+    "api_key",
+    "apikey",
+    "client_secret",
+    "credential",
+    "authorization",
+    "auth_code",
+)
 REQUIRED_TABLES = ("records", "membership", "versions", "events")
 
 
@@ -69,7 +81,10 @@ def audit(data):
                 parts[d["component"]] = ev.get("event_type") == "component_approve"
         if status in ("approved", "scheduled", "published") and not all(parts.values()):
             dual_mismatch += 1
-            warnings.append(f"Conteúdo {rid} com estado {status}, mas sem ambas as aprovações registadas na versão atual.")
+            warnings.append(
+                f"Conteúdo {rid} com estado {status}, mas sem ambas as aprovações registadas na versão atual."
+            )
+
     # Check keys, not freeform text; text may legitimately mention the terms.
     def check_keys(obj, path=""):
         if isinstance(obj, dict):
@@ -81,6 +96,7 @@ def audit(data):
         elif isinstance(obj, list):
             for i, v in enumerate(obj):
                 check_keys(v, f"{path}/{i}")
+
     check_keys(tables)
     counts_declared = data.get("counts", {})
     for table, rows in tables.items():
@@ -98,7 +114,8 @@ def audit(data):
             "other_types": dict(types),
             "tables": {k: len(v) for k, v in tables.items()},
         },
-        "errors": errors[:100], "warnings": warnings[:200],
+        "errors": errors[:100],
+        "warnings": warnings[:200],
     }
 
 

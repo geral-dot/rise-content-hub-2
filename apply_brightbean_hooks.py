@@ -6,6 +6,7 @@ SHA1 of each original source file, exact unique anchors, and all files BEFORE
 writing any change. Stores .rise-backup copies, then atomic file replacement.
 DOES NOT access accounts, databases, websites, APIs or media.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -58,51 +59,51 @@ HOOKS = [
     injected(
         "apps/composer/services.py",
         '    if status == "scheduled":\n        _require_approval_gate_passes(workspace)\n',
-        '        # RISE_GUARD_CREATE: newly created content needs client approvals first.\n'
-        '        from django_rise_agency.services import rise_dual_approval_enabled\n'
-        '        if rise_dual_approval_enabled(workspace.id):\n'
+        "        # RISE_GUARD_CREATE: newly created content needs client approvals first.\n"
+        "        from django_rise_agency.services import rise_dual_approval_enabled\n"
+        "        if rise_dual_approval_enabled(workspace.id):\n"
         '            raise ValueError("RISE: crie primeiro um rascunho e obtenha as duas aprovações")\n',
         "RISE_GUARD_CREATE",
     ),
     injected(
         "apps/composer/services.py",
-        '        require_publishable(platform_post)\n',
-        '        from django_rise_agency.services import require_rise_publishable\n'
-        '        require_rise_publishable(platform_post)  # RISE_GUARD_SERVICE_SCHEDULE\n',
+        "        require_publishable(platform_post)\n",
+        "        from django_rise_agency.services import require_rise_publishable\n"
+        "        require_rise_publishable(platform_post)  # RISE_GUARD_SERVICE_SCHEDULE\n",
         "RISE_GUARD_SERVICE_SCHEDULE",
     ),
     # Composer UI: reject all schedule/queue actions BEFORE saving any editorial change.
     injected(
         "apps/composer/views.py",
-        '    if not post_id:\n        post.author = request.user\n',
-        '    # RISE_GUARD_COMPOSER: pending approvals never enter scheduled queues.\n'
+        "    if not post_id:\n        post.author = request.user\n",
+        "    # RISE_GUARD_COMPOSER: pending approvals never enter scheduled queues.\n"
         '    if action in {"schedule", "publish_now", "add_to_queue", "add_to_queue_priority"}:\n'
-        '        from django_rise_agency.services import rise_dual_approval_enabled, require_rise_post_approved\n'
-        '        if rise_dual_approval_enabled(workspace.id):\n'
-        '            if not post_id:\n'
+        "        from django_rise_agency.services import rise_dual_approval_enabled, require_rise_post_approved\n"
+        "        if rise_dual_approval_enabled(workspace.id):\n"
+        "            if not post_id:\n"
         '                return JsonResponse({"errors": {"approval": "RISE: guarde como rascunho e solicite aprovação"}}, status=409)\n'
-        '            try:\n'
-        '                require_rise_post_approved(post)\n'
-        '            except ValueError as exc:\n'
+        "            try:\n"
+        "                require_rise_post_approved(post)\n"
+        "            except ValueError as exc:\n"
         '                return JsonResponse({"errors": {"approval": str(exc)}}, status=409)\n',
         "RISE_GUARD_COMPOSER",
     ),
     injected(
         "apps/composer/views.py",
-        '            require_publishable(pp)\n        except ValueError as exc:\n',
+        "            require_publishable(pp)\n        except ValueError as exc:\n",
         # Replaced after HOOKS construction to keep the try/except boundary.
-        '        # RISE_GUARD_ACCOUNT_SCHEDULE\n',
+        "        # RISE_GUARD_ACCOUNT_SCHEDULE\n",
         "RISE_GUARD_ACCOUNT_SCHEDULE",
     ),
     # CSV import: scheduling imported rows is blocked; preserve proposed slot.
     injected(
         "apps/composer/views.py",
         '                    initial_pp_status = "scheduled"\n',
-        '                    # RISE_GUARD_CSV: imports never bypass client approval.\n'
-        '                    from django_rise_agency.services import rise_dual_approval_enabled\n'
-        '                    if rise_dual_approval_enabled(workspace.id):\n'
-        '                        post.proposed_publish_at = post.scheduled_at\n'
-        '                        post.scheduled_at = None\n'
+        "                    # RISE_GUARD_CSV: imports never bypass client approval.\n"
+        "                    from django_rise_agency.services import rise_dual_approval_enabled\n"
+        "                    if rise_dual_approval_enabled(workspace.id):\n"
+        "                        post.proposed_publish_at = post.scheduled_at\n"
+        "                        post.scheduled_at = None\n"
         '                        initial_pp_status = "draft"\n',
         "RISE_GUARD_CSV",
     ),
@@ -110,43 +111,42 @@ HOOKS = [
     injected(
         "apps/approvals/services.py",
         '    two_stage = workspace.approval_workflow_mode == "required_internal_and_client"\n',
-        '    # RISE_GUARD_NATIVE_APPROVE: allow internal pass but gate final sign-off.\n'
+        "    # RISE_GUARD_NATIVE_APPROVE: allow internal pass but gate final sign-off.\n"
         '    if not two_stage or any(pp.status != "pending_review" for pp in targets):\n'
-        '        from django_rise_agency.services import require_rise_post_approved\n'
-        '        require_rise_post_approved(post)\n',
+        "        from django_rise_agency.services import require_rise_post_approved\n"
+        "        require_rise_post_approved(post)\n",
         "RISE_GUARD_NATIVE_APPROVE",
     ),
     # Definitive failure-closed guard before provider dispatch.
     injected(
         "apps/publisher/engine.py",
-        '        start_time = time.monotonic()\n'
-        '        account = platform_post.social_account\n',
-        '        # RISE_GUARD_DISPATCH: last check before attempting external API.\n'
-        '        from django_rise_agency.services import require_rise_publishable\n'
-        '        try:\n'
-        '            require_rise_publishable(platform_post)\n'
-        '        except ValueError as exc:\n'
-        '            self._fail_permanently(\n'
-        '                platform_post, str(exc),\n'
+        "        start_time = time.monotonic()\n        account = platform_post.social_account\n",
+        "        # RISE_GUARD_DISPATCH: last check before attempting external API.\n"
+        "        from django_rise_agency.services import require_rise_publishable\n"
+        "        try:\n"
+        "            require_rise_publishable(platform_post)\n"
+        "        except ValueError as exc:\n"
+        "            self._fail_permanently(\n"
+        "                platform_post, str(exc),\n"
         '                user_message="RISE: publicação bloqueada até nova aprovação de texto e imagem.",\n'
         '                reason="rise-approval-gate",\n'
-        '            )\n'
+        "            )\n"
         '            return {"success": False, "error": "RISE: aprovação pendente"}\n',
         "RISE_GUARD_DISPATCH",
     ),
     injected(
         "apps/calendar/views.py",
-        '            require_publishable(pp)\n',
-        '            from django_rise_agency.services import require_rise_publishable\n'
-        '            require_rise_publishable(pp)  # RISE_GUARD_CALENDAR_DRAG\n',
+        "            require_publishable(pp)\n",
+        "            from django_rise_agency.services import require_rise_publishable\n"
+        "            require_rise_publishable(pp)  # RISE_GUARD_CALENDAR_DRAG\n",
         "RISE_GUARD_CALENDAR_DRAG",
     ),
     injected(
         "apps/calendar/views.py",
         '                if pp.status != "scheduled":\n                    pp.transition_to("scheduled")\n',
-        '                # RISE_GUARD_CALENDAR_BULK: all accounts require approval.\n'
-        '                from django_rise_agency.services import require_rise_publishable\n'
-        '                require_rise_publishable(pp)\n',
+        "                # RISE_GUARD_CALENDAR_BULK: all accounts require approval.\n"
+        "                from django_rise_agency.services import require_rise_publishable\n"
+        "                require_rise_publishable(pp)\n",
         "RISE_GUARD_CALENDAR_BULK",
     ),
 ]
@@ -155,9 +155,9 @@ HOOKS = [
 HOOKS[-1] = Hook(
     "apps/calendar/views.py",
     '                if pp.status != "scheduled":\n                    pp.transition_to("scheduled")\n',
-    '                # RISE_GUARD_CALENDAR_BULK: approve before changing any state.\n'
-    '                from django_rise_agency.services import require_rise_publishable\n'
-    '                require_rise_publishable(pp)\n'
+    "                # RISE_GUARD_CALENDAR_BULK: approve before changing any state.\n"
+    "                from django_rise_agency.services import require_rise_publishable\n"
+    "                require_rise_publishable(pp)\n"
     '                if pp.status != "scheduled":\n                    pp.transition_to("scheduled")\n',
     "RISE_GUARD_CALENDAR_BULK",
 )
@@ -165,11 +165,11 @@ HOOKS[-1] = Hook(
 # Special hook: the call occurs inside a try block, and must stay inside it.
 HOOKS[5] = Hook(
     "apps/composer/views.py",
-    '            require_publishable(pp)\n        except ValueError as exc:\n',
-    '            require_publishable(pp)\n'
-    '            from django_rise_agency.services import require_rise_publishable\n'
-    '            require_rise_publishable(pp)  # RISE_GUARD_ACCOUNT_SCHEDULE\n'
-    '        except ValueError as exc:\n',
+    "            require_publishable(pp)\n        except ValueError as exc:\n",
+    "            require_publishable(pp)\n"
+    "            from django_rise_agency.services import require_rise_publishable\n"
+    "            require_rise_publishable(pp)  # RISE_GUARD_ACCOUNT_SCHEDULE\n"
+    "        except ValueError as exc:\n",
     "RISE_GUARD_ACCOUNT_SCHEDULE",
 )
 

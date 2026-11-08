@@ -1,16 +1,17 @@
 """Offline unit and safety tests (no Django / external API calls)."""
+
 import copy
-import json
 import sys
-import tempfile
 import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from apply_brightbean_hooks import PIN, HOOKS, EXPECTED_BLOBS, plan_patches
+from apply_brightbean_hooks import EXPECTED_BLOBS, HOOKS, PIN, plan_patches
 from django_rise_agency.editorial_policy import (
-    client_can_review, editorial_platform_options, has_approved_components,
+    client_can_review,
+    editorial_platform_options,
+    has_approved_components,
 )
 from django_rise_agency.fingerprint import snapshot_digest
 from django_rise_agency.policy import ApprovalState
@@ -60,12 +61,14 @@ class EditorialPolicyTests(unittest.TestCase):
 
 class FingerprintTests(unittest.TestCase):
     def test_stable_key_order(self):
-        self.assertEqual(snapshot_digest({"copy": "x", "visual": ["v"]}),
-                         snapshot_digest({"visual": ["v"], "copy": "x"}))
+        self.assertEqual(
+            snapshot_digest({"copy": "x", "visual": ["v"]}), snapshot_digest({"visual": ["v"], "copy": "x"})
+        )
 
     def test_caption_change(self):
-        self.assertNotEqual(snapshot_digest({"copy": "A", "visual": ["x"]}),
-                            snapshot_digest({"copy": "B", "visual": ["x"]}))
+        self.assertNotEqual(
+            snapshot_digest({"copy": "A", "visual": ["x"]}), snapshot_digest({"copy": "B", "visual": ["x"]})
+        )
 
     def test_media_version_change(self):
         base = {"media": [{"asset_id": "x", "asset_version_id": "v1", "asset_size": 100}]}
@@ -110,7 +113,7 @@ class HookSafetyTests(unittest.TestCase):
         sources = {}
         for hook in HOOKS:
             sources.setdefault(hook.file, "")
-            sources[hook.file] += ("# spacer\n" + hook.anchor)
+            sources[hook.file] += "# spacer\n" + hook.anchor
         return sources
 
     def test_plan_creates_all_changes(self):
@@ -139,8 +142,10 @@ class HookSafetyTests(unittest.TestCase):
 
     def test_bulk_guard_precedes_state_mutation(self):
         hook = next(h for h in HOOKS if h.tag == "RISE_GUARD_CALENDAR_BULK")
-        self.assertLess(hook.replacement.index("require_rise_publishable(pp)"),
-                        hook.replacement.index('pp.transition_to("scheduled")'))
+        self.assertLess(
+            hook.replacement.index("require_rise_publishable(pp)"),
+            hook.replacement.index('pp.transition_to("scheduled")'),
+        )
 
     def test_publisher_gate_precedes_outbound_dispatch(self):
         hook = next(h for h in HOOKS if h.tag == "RISE_GUARD_DISPATCH")
@@ -151,22 +156,38 @@ class HookSafetyTests(unittest.TestCase):
 class ExportValidationTests(unittest.TestCase):
     @staticmethod
     def valid(tables=None):
-        return {"metadata": {"schema": "rise-wordpress-1.11-export-v1"},
-                "tables": tables or {"records": [], "membership": [], "versions": [], "events": []},
-                "counts": {}}
+        return {
+            "metadata": {"schema": "rise-wordpress-1.11-export-v1"},
+            "tables": tables or {"records": [], "membership": [], "versions": [], "events": []},
+            "counts": {},
+        }
 
     def test_accepts_empty(self):
         self.assertTrue(audit(self.valid())["ok"])
 
     def test_secrets_rejected(self):
-        d = self.valid({"records": [{"id": 1, "kind": "integrations", "payload": {"access_token": "secret"}}],
-                        "membership": [], "versions": [], "events": []})
+        d = self.valid(
+            {
+                "records": [{"id": 1, "kind": "integrations", "payload": {"access_token": "secret"}}],
+                "membership": [],
+                "versions": [],
+                "events": [],
+            }
+        )
         self.assertFalse(audit(d)["ok"])
 
     def test_approvals_mismatch_is_warning(self):
-        d = self.valid({"records": [{"id": 1, "kind": "clients"},
-                                     {"id": 2, "kind": "content", "client_id": 1, "version": 1, "status": "published"}],
-                        "membership": [], "versions": [], "events": []})
+        d = self.valid(
+            {
+                "records": [
+                    {"id": 1, "kind": "clients"},
+                    {"id": 2, "kind": "content", "client_id": 1, "version": 1, "status": "published"},
+                ],
+                "membership": [],
+                "versions": [],
+                "events": [],
+            }
+        )
         a = audit(d)
         self.assertTrue(a["ok"])
         self.assertEqual(a["summary"]["approval_state_warnings"], 1)
