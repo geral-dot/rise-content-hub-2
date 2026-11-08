@@ -18,7 +18,7 @@ class Command(BaseCommand):
         try:
             content = json.loads(options['input'].read_text(encoding='utf-8'))
         except (OSError, ValueError) as exc:
-            raise CommandError(f'Ficheiro inválido: {exc}')
+            raise CommandError(f'Ficheiro inválido: {exc}') from exc
         if content.get('metadata', {}).get('schema') != 'rise-wordpress-1.11-export-v1':
             raise CommandError('Exportação não reconhecida.')
         result = audit(content)
