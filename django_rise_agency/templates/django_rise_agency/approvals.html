@@ -1,0 +1,36 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aprovações · {{ workspace.name }} · RISE Content Hub</title>
+  <link rel="stylesheet" href="{% static 'django_rise_agency/rise.css' %}">
+</head>
+<body>
+  <header><div class="brand">RISE <span>CONTENT HUB</span></div><p>Gestão de aprovações · {{ workspace.name }}</p></header>
+  <main><h1>Calendário de aprovações</h1><p class="intro">A aprovação final exige texto e imagem na mesma versão. Alterações posteriores exigem nova revisão.</p>
+  {% for row in rows %}
+    <article>
+      <div class="heading"><div><small>Publicação {{ row.post.id }}</small><h2>{{ row.post.title|default:"Publicação sem título" }}</h2></div>
+        {% if row.state.approved %}<span class="status ok">Aprovado</span>
+        {% elif row.state.stale %}<span class="status warn">Alterado · Reaprovar</span>
+        {% else %}<span class="status">A aguardar aprovação</span>{% endif %}</div>
+      <p class="copy">{{ row.post.caption|default:"Sem texto"|truncatechars:280|linebreaksbr }}</p>
+      <div class="mini">Versão RISE {{ row.state.version }} · {{ row.post.platform_posts.count }} conta(s) social(is) · {{ row.post.media_attachments.count }} ficheiro(s)</div>
+      <div class="decisions">
+        <div><strong>Texto</strong> {% if row.state.copy %}<span class="status ok">Aprovado</span>{% endif %}
+          <form method="post" action="{% url 'rise_agency:component_decision' workspace.id row.post.id 'copy' %}">{% csrf_token %}
+          <button name="decision" value="approve" type="submit">Aprovar texto</button>
+          <button name="decision" value="revoke" type="submit" class="secondary">Pedir revisão</button></form></div>
+        <div><strong>Imagem/vídeo</strong> {% if row.state.visual %}<span class="status ok">Aprovado</span>{% endif %}
+          <form method="post" action="{% url 'rise_agency:component_decision' workspace.id row.post.id 'visual' %}">{% csrf_token %}
+          <button name="decision" value="approve" type="submit">Aprovar imagem</button>
+          <button name="decision" value="revoke" type="submit" class="secondary">Pedir revisão</button></form></div>
+      </div>
+    </article>
+  {% empty %}
+    <div class="empty">Ainda não existem publicações neste cliente.</div>
+  {% endfor %}
+  </main>
+</body>
+</html>
