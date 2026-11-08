@@ -148,6 +148,7 @@ def approve_post(target, user, workspace, comment=""):
     # RISE_GUARD_NATIVE_APPROVE: allow internal pass but gate final sign-off.
     if not two_stage or any(pp.status != "pending_review" for pp in targets):
         from django_rise_agency.services import require_rise_post_approved
+
         require_rise_post_approved(post)
     moved = []
     advanced_to_client = False

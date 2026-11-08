@@ -1148,6 +1148,7 @@ def reschedule_post(request, workspace_id):
         try:
             require_publishable(pp)
             from django_rise_agency.services import require_rise_publishable
+
             require_rise_publishable(pp)  # RISE_GUARD_CALENDAR_DRAG
         except ValueError as exc:
             return JsonResponse({"error": str(exc)}, status=400)
@@ -1384,6 +1385,7 @@ def bulk_platform_action(request, workspace_id):
                     pp.platform_post_id = ""
                 # RISE_GUARD_CALENDAR_BULK: approve before changing any state.
                 from django_rise_agency.services import require_rise_publishable
+
                 require_rise_publishable(pp)
                 if pp.status != "scheduled":
                     pp.transition_to("scheduled")
