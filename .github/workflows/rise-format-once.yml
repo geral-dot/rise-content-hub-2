@@ -1,0 +1,42 @@
+name: RISE — normalização pontual de código
+on:
+  push:
+    branches:
+      - rise/content-hub-v2
+    paths:
+      - ".github/workflows/rise-format-once.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  format-rise:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/rise/content-hub-v2'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: rise/content-hub-v2
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Instalar a versão do formatador usada na CI
+        run: pip install "ruff==0.15.9"
+      - name: Corrigir regras automatizáveis e formatar apenas a extensão RISE
+        run: |
+          ruff check --fix django_rise_agency apps/composer/views.py tests/test_portable.py apply_brightbean_hooks.py validate_export.py
+          ruff format django_rise_agency apps/composer/views.py tests/test_portable.py apply_brightbean_hooks.py validate_export.py
+          ruff check django_rise_agency apps/composer/views.py tests/test_portable.py apply_brightbean_hooks.py validate_export.py
+          git diff --check
+      - name: Guardar normalização na ramificação de desenvolvimento
+        run: |
+          git config user.name "rise-ci[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet; then
+            git add django_rise_agency apps/composer/views.py tests/test_portable.py apply_brightbean_hooks.py validate_export.py
+            git commit -m "style(rise): normalizar e validar o código RISE com Ruff"
+            git push origin HEAD:rise/content-hub-v2
+          else
+            echo "Sem alterações de formatação."
+          fi
