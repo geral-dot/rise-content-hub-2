@@ -99,9 +99,10 @@ def approve_component(post, actor, component, approved):
     if membership is None:
         raise PermissionError("Sem permissão para aprovar esta publicação")
     # Client accounts may not see or act on internal drafts.
-    if not membership.effective_permissions.get("create_posts", False):
-        if not post.platform_posts.filter(status="pending_client").exists():
-            raise PermissionError("Esta publicação ainda não está disponível para aprovação do cliente")
+    if not membership.effective_permissions.get("create_posts", False) and not post.platform_posts.filter(
+        status="pending_client"
+    ).exists():
+        raise PermissionError("Esta publicação ainda não está disponível para aprovação do cliente")
     if not rise_dual_approval_enabled(post.workspace_id):
         raise ValueError("A aprovação dupla RISE não está ativa nesta marca")
     if post.platform_posts.filter(status__in=LOCKED_STATES).exists():
