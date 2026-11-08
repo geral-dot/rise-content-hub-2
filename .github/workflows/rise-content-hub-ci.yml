@@ -1,0 +1,48 @@
+name: RISE Content Hub — verificações iniciais
+on:
+  push:
+    branches:
+      - rise/content-hub-v2
+  pull_request:
+    paths:
+      - "django_rise_agency/**"
+      - "apps/composer/**"
+      - "apps/approvals/**"
+      - "apps/calendar/**"
+      - "apps/publisher/**"
+      - "config/**"
+      - "tests/test_portable.py"
+      - "apply_brightbean_hooks.py"
+      - ".github/workflows/rise-content-hub-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  rise-portable:
+    name: Testes editoriais e sintaxe (sem credenciais)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Testes locais da RISE
+        run: python -m unittest discover -s tests -p "test_portable.py" -v
+      - name: Sintaxe da integração Django e pontos de publicação
+        run: |
+          python -m compileall -q django_rise_agency
+          python -m py_compile apply_brightbean_hooks.py
+          python -m py_compile apps/composer/services.py apps/composer/views.py
+          python -m py_compile apps/approvals/services.py apps/calendar/views.py apps/publisher/engine.py
+          python -m py_compile config/urls.py config/settings/base.py
+      - name: Verificar marcadores de integração RISE
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from apply_brightbean_hooks import HOOKS
+          for hook in HOOKS:
+              content = Path(hook.file).read_text(encoding="utf-8")
+              assert content.count(hook.tag) == 1, f"RISE hook ausente/duplicado: {hook.tag}"
+          print("11 pontos de integração presentes")
+          PY
