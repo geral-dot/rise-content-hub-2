@@ -955,7 +955,13 @@ def test_the_sweep_asks_for_the_window_since_the_last_sweep(workspace):
 
     kwargs = provider.get_messages.call_args.kwargs
     assert kwargs["deep"] is True
-    assert kwargs["since"] == swept_at
+    # The first sweep in a new calendar month intentionally includes all
+    # replies since the start of the previous month; this assertion must
+    # remain stable even when the suite runs during the first week of a month.
+    now = timezone.now()
+    monthly_full_walk = (swept_at.year, swept_at.month) != (now.year, now.month)
+    expected_since = swept_at.replace(day=1, hour=0, minute=0, second=0, microsecond=0) if monthly_full_walk else swept_at
+    assert kwargs["since"] == expected_since
 
 
 @pytest.mark.django_db
