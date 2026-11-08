@@ -145,6 +145,10 @@ def create_post(
 
     if status == "scheduled":
         _require_approval_gate_passes(workspace)
+        # RISE_GUARD_CREATE: newly created content needs client approvals first.
+        from django_rise_agency.services import rise_dual_approval_enabled
+        if rise_dual_approval_enabled(workspace.id):
+            raise ValueError("RISE: crie primeiro um rascunho e obtenha as duas aprovações")
 
     media_ids = list(media_asset_ids or [])
     # Pull and validate all referenced assets in a single query — fail
@@ -263,6 +267,8 @@ def transition_platform_post(
     if target_status == "scheduled":
         _require_approval_gate_passes(platform_post.post.workspace)
         require_publishable(platform_post)
+        from django_rise_agency.services import require_rise_publishable
+        require_rise_publishable(platform_post)  # RISE_GUARD_SERVICE_SCHEDULE
 
     with transaction.atomic():
         platform_post.transition_to(target_status)

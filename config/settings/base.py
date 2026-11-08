@@ -65,6 +65,7 @@ LOCAL_APPS = [
     "apps.inbox",
     "apps.approvals",
     "apps.client_portal",
+    "django_rise_agency.apps.RiseAgencyConfig",  # RISE_APP_REGISTERED
     "apps.onboarding",
     # Always installed (migrations consistent across deployments). URLs +
     # templates short-circuit when ``settings.INTELLIGENCE_ENABLED`` is False,
