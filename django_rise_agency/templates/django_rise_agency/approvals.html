@@ -1,36 +1,80 @@
-{% load static %}
-<!doctype html>
-<html lang="pt-PT">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Aprovações · {{ workspace.name }} · RISE Content Hub</title>
-  <link rel="stylesheet" href="{% static 'django_rise_agency/rise.css' %}">
-</head>
-<body>
-  <header><div class="brand">RISE <span>CONTENT HUB</span></div><p>Gestão de aprovações · {{ workspace.name }}</p></header>
-  <main><h1>Calendário de aprovações</h1><p class="intro">A aprovação final exige texto e imagem na mesma versão. Alterações posteriores exigem nova revisão.</p>
-  {% for row in rows %}
-    <article>
-      <div class="heading"><div><small>Publicação {{ row.post.id }}</small><h2>{{ row.post.title|default:"Publicação sem título" }}</h2></div>
-        {% if row.state.approved %}<span class="status ok">Aprovado</span>
-        {% elif row.state.stale %}<span class="status warn">Alterado · Reaprovar</span>
-        {% else %}<span class="status">A aguardar aprovação</span>{% endif %}</div>
-      <p class="copy">{{ row.post.caption|default:"Sem texto"|truncatechars:280|linebreaksbr }}</p>
-      <div class="mini">Versão RISE {{ row.state.version }} · {{ row.post.platform_posts.count }} conta(s) social(is) · {{ row.post.media_attachments.count }} ficheiro(s)</div>
-      <div class="decisions">
-        <div><strong>Texto</strong> {% if row.state.copy %}<span class="status ok">Aprovado</span>{% endif %}
-          <form method="post" action="{% url 'rise_agency:component_decision' workspace.id row.post.id 'copy' %}">{% csrf_token %}
-          <button name="decision" value="approve" type="submit">Aprovar texto</button>
-          <button name="decision" value="revoke" type="submit" class="secondary">Pedir revisão</button></form></div>
-        <div><strong>Imagem/vídeo</strong> {% if row.state.visual %}<span class="status ok">Aprovado</span>{% endif %}
-          <form method="post" action="{% url 'rise_agency:component_decision' workspace.id row.post.id 'visual' %}">{% csrf_token %}
-          <button name="decision" value="approve" type="submit">Aprovar imagem</button>
-          <button name="decision" value="revoke" type="submit" class="secondary">Pedir revisão</button></form></div>
+{% extends "base.html" %}
+{% block title %}Aprovações · {{ workspace.name }} · RISE Content Hub{% endblock %}
+{% block content %}
+<div class="rise-review-hub">
+  <nav class="rise-hub-breadcrumb" aria-label="Navegação">
+    <a href="{% url 'rise_agency:dashboard' %}">Visão geral</a>
+    {% if can_edit %}<span>›</span><a href="{% url 'rise_agency:client_center' client_id=workspace.id %}">{{ workspace.name }}</a>{% endif %}
+    <span>›</span><strong>Aprovações</strong>
+  </nav>
+  <header class="rise-review-heading">
+    <div><p class="rise-eyebrow">RISE / CONTROLO EDITORIAL</p><h1>Aprovação de conteúdos</h1>
+      <p>{{ workspace.name }} · O texto e o visual têm de ser aprovados na mesma versão. Uma alteração reinicia a validação dos elementos afetados.</p>
+    </div>
+    {% if can_edit %}<a class="rise-cta" href="{% url 'composer:compose' workspace_id=workspace.id %}">+ Criar conteúdo</a>{% endif %}
+  </header>
+
+  <div class="rise-review-grid">
+    {% for row in rows %}
+    <article class="rise-review-card" aria-labelledby="rise-approval-{{ row.post.id }}">
+      <div class="rise-review-top">
+        <div><p class="rise-eyebrow">VERSÃO {{ row.state.version }} · {{ row.post.created_at|date:"d/m/Y" }}</p>
+          <h2 id="rise-approval-{{ row.post.id }}">{{ row.post.title|default:"Conteúdo sem título" }}</h2>
+        </div>
+        {% if row.state.approved %}<span class="rise-review-state ok">Texto e visual aprovados</span>
+        {% elif row.state.stale %}<span class="rise-review-state warning">Nova aprovação necessária</span>
+        {% else %}<span class="rise-review-state">A aguardar aprovação</span>{% endif %}
+      </div>
+      <div class="rise-review-body">
+        <div class="rise-review-text">
+          <span class="rise-review-smalllabel">COPY / TEXTO</span>
+          <p>{{ row.post.caption|default:"Ainda não existe texto nesta publicação."|linebreaksbr }}</p>
+          {% if can_edit and row.post.internal_notes %}<div class="rise-review-internal"><strong>Nota interna</strong><p>{{ row.post.internal_notes|linebreaksbr }}</p></div>{% endif %}
+        </div>
+        <div class="rise-review-visual">
+          <span class="rise-review-smalllabel">VISUAL / FICHEIROS</span>
+          {% for item in row.post.media_attachments.all %}
+          <div class="rise-review-media">
+            {% if item.media_asset.thumbnail %}
+            <img src="{{ item.media_asset.thumbnail.url }}" alt="{{ item.alt_text|default:item.media_asset.filename }}" loading="lazy">
+            {% elif item.media_asset.is_image and item.media_asset.file %}
+            <img src="{{ item.media_asset.file.url }}" alt="{{ item.alt_text|default:item.media_asset.filename }}" loading="lazy">
+            {% else %}
+            <div class="rise-review-file"><span>▤</span>{{ item.media_asset.filename }}</div>
+            {% endif %}
+          </div>
+          {% empty %}
+          <div class="rise-review-no-visual">Sem ficheiros multimédia associados ao conteúdo base. Podem existir variantes próprias de cada rede social.</div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="rise-review-footer">
+        <div class="rise-review-decision">
+          <div class="rise-review-decision-label"><strong>Validação do texto</strong>
+            {% if row.state.copy %}<span class="rise-review-mini-ok">Aprovado</span>{% else %}<span>Por aprovar</span>{% endif %}
+          </div>
+          <form method="post" action="{% url 'rise_agency:component_decision' workspace.id row.post.id 'copy' %}">
+            {% csrf_token %}
+            <button type="submit" name="decision" value="approve" class="rise-hub-button lime">Aprovar texto</button>
+            <button type="submit" name="decision" value="revoke" class="rise-hub-button subtle">Pedir revisão</button>
+          </form>
+        </div>
+        <div class="rise-review-decision">
+          <div class="rise-review-decision-label"><strong>Validação do visual</strong>
+            {% if row.state.visual %}<span class="rise-review-mini-ok">Aprovado</span>{% else %}<span>Por aprovar</span>{% endif %}
+          </div>
+          <form method="post" action="{% url 'rise_agency:component_decision' workspace.id row.post.id 'visual' %}">
+            {% csrf_token %}
+            <button type="submit" name="decision" value="approve" class="rise-hub-button lime">Aprovar visual</button>
+            <button type="submit" name="decision" value="revoke" class="rise-hub-button subtle">Pedir revisão</button>
+          </form>
+        </div>
+        {% if can_edit %}<a class="rise-review-edit" href="{% url 'composer:compose_edit' workspace_id=workspace.id post_id=row.post.id %}">Abrir no editor ↗</a>{% endif %}
       </div>
     </article>
-  {% empty %}
-    <div class="empty">Ainda não existem publicações neste cliente.</div>
-  {% endfor %}
-  </main>
-</body>
-</html>
+    {% empty %}
+    <div class="rise-hub-empty"><strong>Sem conteúdos para aprovar.</strong><p>Quando existirem conteúdos disponíveis nesta marca, aparecerão aqui com a aprovação independente de texto e visual.</p></div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

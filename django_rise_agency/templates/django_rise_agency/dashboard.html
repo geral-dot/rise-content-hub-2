@@ -47,8 +47,11 @@
                     {% else %}<span>Avença ainda não configurada</span>{% endif %}
                 </div>
                 <div class="rise-client-actions">
+                    {% if is_manager or row.can_operate %}
+                    <a class="rise-client-mainlink" href="{% url 'rise_agency:client_center' client_id=row.workspace.id %}">Abrir ficha do cliente ↗</a>
+                    {% endif %}
                     {% if is_manager %}
-                    <a href="{% url 'rise_agency:client_settings' client_id=row.workspace.id %}">Avença e marca</a>
+                    <a href="{% url 'rise_agency:client_settings' client_id=row.workspace.id %}">Configurar avença</a>
                     {% endif %}
                     {% if row.has_access %}
                     <a href="{% url 'calendar:calendar' workspace_id=row.workspace.id %}">Abrir calendário <span aria-hidden="true">↗</span></a>

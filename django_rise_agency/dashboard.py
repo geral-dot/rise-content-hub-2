@@ -101,6 +101,7 @@ def agency_dashboard(request):
                 "published": published,
                 "retainer": retainers.get(workspace.pk),
                 "has_access": permission is not None,
+                "can_operate": bool(permission and permission.effective_permissions.get("create_posts", False)),
                 "can_approve": bool(permission and permission.effective_permissions.get("approve_posts", False)),
                 "dual_approval": workspace.pk in dual_approval_ids,
             }

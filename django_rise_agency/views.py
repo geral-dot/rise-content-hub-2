@@ -53,6 +53,7 @@ def approvals(request, workspace_id):
         {
             "workspace": workspace,
             "rows": rows,
+            "can_edit": bool(membership.effective_permissions.get("create_posts", False)),
         },
     )
 
