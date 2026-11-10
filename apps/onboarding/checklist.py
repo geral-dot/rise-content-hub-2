@@ -25,8 +25,8 @@ def get_checklist_items(workspace):
     items = [
         {
             "key": "connect_accounts",
-            "title": "Connect social accounts",
-            "description": "Link your Instagram, LinkedIn, or other platforms",
+            "title": "Ligar redes sociais",
+            "description": "Associa o Instagram, LinkedIn ou outras redes da marca",
             "completed": SocialAccount.objects.for_workspace(workspace_id).exists(),
             "url": reverse(
                 "social_accounts:connect",
@@ -37,8 +37,8 @@ def get_checklist_items(workspace):
         },
         {
             "key": "create_post",
-            "title": "Create your first post",
-            "description": "Draft and schedule content for your audience",
+            "title": "Criar a primeira publicação",
+            "description": "Prepara e agenda um conteúdo editorial",
             "completed": Post.objects.for_workspace(workspace_id).exists(),
             "url": reverse(
                 "composer:compose",
@@ -49,8 +49,8 @@ def get_checklist_items(workspace):
         },
         {
             "key": "create_idea",
-            "title": "Create your first idea",
-            "description": "Capture content ideas to develop later",
+            "title": "Registar uma ideia",
+            "description": "Guarda ideias para desenvolver mais tarde",
             "completed": Idea.objects.for_workspace(workspace_id).filter(author__isnull=False).exists(),
             "url": reverse(
                 "composer:create_landing",
@@ -61,8 +61,8 @@ def get_checklist_items(workspace):
         },
         {
             "key": "invite_members",
-            "title": "Invite your team",
-            "description": "Add team members to collaborate on content",
+            "title": "Convidar a equipa",
+            "description": "Convida a equipa para colaborar nos conteúdos",
             "completed": WorkspaceMembership.objects.filter(
                 workspace_id=workspace_id,
                 workspace_role=WorkspaceMembership.WorkspaceRole.CLIENT,
