@@ -1,4 +1,5 @@
 """Contexto da experiência visual RISE, configurável por ambiente."""
+
 from django.conf import settings
 
 
