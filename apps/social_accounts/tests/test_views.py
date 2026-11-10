@@ -210,7 +210,7 @@ class TestAccountListView:
     def test_shows_empty_state(self, authenticated_client, workspace):
         url = reverse("social_accounts:list", kwargs={"workspace_id": workspace.id})
         response = authenticated_client.get(url)
-        assert b"No accounts connected yet" in response.content
+        assert b"Ainda não há contas associadas." in response.content
 
 
 @pytest.mark.django_db
