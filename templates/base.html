@@ -818,7 +818,9 @@
                 {% endblock %}
             </nav>
 
-            {# A promoção da plataforma de origem não é apresentada na experiência RISE. #}
+            {% if show_review_banner and not RISE_BRANDED %}
+            {% include "partials/_review_banner.html" %}
+            {% endif %}
 
             <!-- Organization footer -->
             <div class="sidebar-org-footer border-t border-stone-100 relative px-3 py-3" x-data="{ orgMenuOpen: false }"
