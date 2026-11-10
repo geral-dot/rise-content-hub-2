@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Avença e identidade · {{ workspace.name }} · RISE Content Hub{% endblock %}
+{% block content %}
+<section class="rise-brand-settings">
+    <div class="rise-settings-top">
+        <a href="{% url 'rise_agency:dashboard' %}">← Voltar à visão geral</a>
+        <span>RISE / CLIENTES</span>
+    </div>
+    <div class="rise-settings-heading">
+        <div><p class="rise-eyebrow">GESTÃO DE MARCA</p>
+            <h1>Avença e identidade</h1>
+            <p>Configura as entregas contratadas, o posicionamento editorial e o fluxo de aprovação de <strong>{{ workspace.name }}</strong>.</p>
+        </div>
+        <div class="rise-client-mark" aria-hidden="true">{{ workspace.name|first|upper }}</div>
+    </div>
+    <form method="post" class="rise-brand-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="rise-form-error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="rise-form-section">
+            <p class="rise-eyebrow">01 / AVENÇA</p><h2>Entregas contratadas</h2>
+            <p class="rise-form-description">Regista o volume mensal acordado. Estes números não representam ainda o consumo executado.</p>
+            <div class="rise-form-grid">
+                <div class="rise-field"><label for="{{ form.period.id_for_label }}">Mês de referência</label>{{ form.period }}{{ form.period.errors }}</div>
+                <div class="rise-field"><label for="{{ form.posts_included.id_for_label }}">Posts incluídos</label>{{ form.posts_included }}{{ form.posts_included.errors }}</div>
+                <div class="rise-field"><label for="{{ form.stories_included.id_for_label }}">Stories incluídas</label>{{ form.stories_included }}{{ form.stories_included.errors }}</div>
+            </div>
+            <div class="rise-field"><label for="{{ form.notes.id_for_label }}">Notas contratuais / particularidades</label>{{ form.notes }}{{ form.notes.errors }}</div>
+        </div>
+        <div class="rise-form-section">
+            <p class="rise-eyebrow">02 / IDENTIDADE EDITORIAL</p><h2>Como a marca comunica</h2>
+            <p class="rise-form-description">Guarda orientações de voz, tom, terminologia e temas. Estas notas não ativam por si só a geração automática com IA.</p>
+            <div class="rise-field"><label for="{{ form.voice_guidelines.id_for_label }}">Orientações de comunicação</label>{{ form.voice_guidelines }}{{ form.voice_guidelines.errors }}</div>
+        </div>
+        <div class="rise-form-section">
+            <p class="rise-eyebrow">03 / APROVAÇÕES</p><h2>Controlo editorial RISE</h2>
+            <label class="rise-toggle-row" for="{{ form.enforce_dual_approval.id_for_label }}">
+                {{ form.enforce_dual_approval }}
+                <span><strong>Exigir aprovação independente do texto e do visual</strong>
+                    <small>Quando ativa, a política RISE exige ambas as aprovações na mesma versão antes do envio. A aprovação nativa da plataforma continua a aplicar-se.</small>
+                </span>
+            </label>
+            {{ form.enforce_dual_approval.errors }}
+        </div>
+        <div class="rise-form-actions"><a href="{% url 'rise_agency:dashboard' %}">Cancelar</a><button type="submit">Guardar definições <span aria-hidden="true">↗</span></button></div>
+    </form>
+</section>
+{% endblock %}
