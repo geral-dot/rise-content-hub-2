@@ -2,6 +2,7 @@
 
 Só Owner/Admin da mesma organização podem alterar estes campos.
 """
+
 from datetime import datetime
 from urllib.parse import urlencode
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError

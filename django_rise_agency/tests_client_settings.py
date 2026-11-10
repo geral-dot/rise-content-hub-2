@@ -1,7 +1,8 @@
 """Testes de autorização para configurações exclusivas da RISE."""
+
 from django.test import TestCase
-from django.utils import timezone
 from django.urls import reverse
+from django.utils import timezone
 
 from apps.accounts.models import User
 from apps.members.models import OrgMembership
