@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, rise/agency-dashboard-v1]
   pull_request:
     branches: [main, rise/content-hub-v2]
 
