@@ -22,6 +22,7 @@ DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 APP_URL = env("APP_URL")
 RISE_AGENCY_HOME_ENABLED = env.bool("RISE_AGENCY_HOME_ENABLED", default=False)
+RISE_BRANDED = env.bool("RISE_BRANDED", default=False)
 
 # Application definition
 
@@ -116,6 +117,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "apps.notifications.context_processors.unread_notification_count",
                 "apps.common.context_processors.sidebar_context",
+                "django_rise_agency.context_processors.rise_experience",
                 "apps.onboarding.context_processors.onboarding_checklist",
                 "apps.intelligence.context_processors.intelligence_flag",
             ],
