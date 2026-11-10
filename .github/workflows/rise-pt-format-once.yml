@@ -1,0 +1,32 @@
+name: RISE PT — normalização pontual
+on:
+  push:
+    branches: [rise/identity-ptpt-ux-v2]
+    paths: [".github/workflows/rise-pt-format-once.yml"]
+permissions:
+  contents: write
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: rise/identity-ptpt-ux-v2
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "ruff==0.15.9"
+      - name: Ruff import fix and format
+        run: |
+          ruff check --fix django_rise_agency/client_settings.py django_rise_agency/tests_client_settings.py apps/accounts/views.py
+          ruff format django_rise_agency/client_settings.py django_rise_agency/tests_client_settings.py apps/accounts/views.py
+      - name: Commit formatting only
+        run: |
+          if ! git diff --quiet -- django_rise_agency/client_settings.py django_rise_agency/tests_client_settings.py apps/accounts/views.py; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add django_rise_agency/client_settings.py django_rise_agency/tests_client_settings.py apps/accounts/views.py
+            git commit -m "style(rise): normalizar implementação PT-PT"
+            git push origin HEAD:rise/identity-ptpt-ux-v2
+          fi
