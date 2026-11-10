@@ -27,7 +27,6 @@ from apps.workspaces.models import Workspace
 from .models import RiseBrandProfile, RiseEditorialAssignment, RiseRetainer
 from .services import approval_status
 
-
 STATUS_NAMES = {
     "draft": "Rascunho",
     "pending_review": "Em revisão interna",
@@ -110,12 +109,16 @@ def client_center(request, client_id):
         stories=Count("pk", filter=Q(format=RiseEditorialAssignment.Format.STORY), distinct=True),
         posts_published=Count(
             "pk",
-            filter=Q(format=RiseEditorialAssignment.Format.POST, post__platform_posts__status=PlatformPost.Status.PUBLISHED),
+            filter=Q(
+                format=RiseEditorialAssignment.Format.POST, post__platform_posts__status=PlatformPost.Status.PUBLISHED
+            ),
             distinct=True,
         ),
         stories_published=Count(
             "pk",
-            filter=Q(format=RiseEditorialAssignment.Format.STORY, post__platform_posts__status=PlatformPost.Status.PUBLISHED),
+            filter=Q(
+                format=RiseEditorialAssignment.Format.STORY, post__platform_posts__status=PlatformPost.Status.PUBLISHED
+            ),
             distinct=True,
         ),
     )

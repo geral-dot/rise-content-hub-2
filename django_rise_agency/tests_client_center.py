@@ -87,9 +87,7 @@ class ClientCenterTests(TestCase):
                 account_platform_id=f"test-{idx}",
                 account_name=f"Página {idx}",
             )
-            PlatformPost.objects.create(
-                post=self.post, social_account=account, status=PlatformPost.Status.PUBLISHED
-            )
+            PlatformPost.objects.create(post=self.post, social_account=account, status=PlatformPost.Status.PUBLISHED)
         res = self.client.get(self.url() + "?period=2026-11")
         self.assertEqual(res.context["counts"]["posts"], 1)
         self.assertEqual(res.context["counts"]["posts_published"], 1)
