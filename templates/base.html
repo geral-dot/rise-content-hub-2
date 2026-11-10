@@ -1,16 +1,17 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" style="{% block html_style %}{% endblock %}">
+<html lang="pt-PT" style="{% block html_style %}{% endblock %}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Brightbean{% endblock %}</title>
+    <title>{% block title %}RISE Content Hub{% endblock %}</title>
     <link rel="icon" href="{% static 'favicon/favicon.ico' %}" sizes="any">
     <link rel="icon" type="image/svg+xml" href="{% static 'favicon/favicon.svg' %}">
     <link rel="icon" type="image/png" sizes="96x96" href="{% static 'favicon/favicon-96x96.png' %}">
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}">
     <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
     <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'django_rise_agency/agency.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
     <script nonce="{{ request.csp_nonce }}">
         // Set sidebar state class on <html> before first paint to prevent flash
@@ -295,6 +296,12 @@
                x-init="$el.classList.remove('sidebar-initial'); document.documentElement.classList.remove('sidebar-is-collapsed'); $nextTick(() => $el.classList.add('transition-all', 'duration-200'))"
                @click="if (window.innerWidth < 1024 && $event.target.closest('a')) { mobileMenuOpen = false }">
 
+            <!-- RISE agency identity -->
+            <a href="{% url 'rise_agency:dashboard' %}" class="rise-sidebar-brand" aria-label="RISE Content Hub — visão geral">
+                <span class="rise-sidebar-symbol">R</span>
+                <span class="rise-sidebar-name">RISE <small>CONTENT HUB</small></span>
+            </a>
+
             <!-- Workspace switcher (top of sidebar) -->
             <div class="relative border-b border-stone-100" x-data="{ wsOpen: false }">
                 <button @click="wsOpen = !wsOpen"
@@ -349,7 +356,7 @@
                         {% endif %}
                     </a>
                     {% empty %}
-                    <p class="px-3 py-2 text-sm text-stone-400">No workspaces</p>
+                    <p class="px-3 py-2 text-sm text-stone-400">Sem espaços de trabalho</p>
                     {% endfor %}
                     {% if can_create_workspace %}
                     <div class="border-t border-stone-100 mt-1 pt-1">
@@ -358,7 +365,7 @@
                             <div class="w-7 h-7 rounded-md flex items-center justify-center border border-dashed border-stone-300 flex-shrink-0">
                                 <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
                             </div>
-                            <span>Create workspace</span>
+                            <span>Criar espaço de trabalho</span>
                         </button>
                     </div>
                     {% endif %}
@@ -369,7 +376,7 @@
                             <div class="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0">
                                 <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.32 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
                             </div>
-                            <span>Workspace settings</span>
+                            <span>Definições do espaço</span>
                         </a>
                     </div>
                     {% endif %}
@@ -386,7 +393,7 @@
                             class="btn-brand w-full flex items-center justify-center gap-1.5 text-sm py-2 cursor-pointer"
                             :style="sidebarCollapsed ? 'padding-left:1.15rem;padding-right:1.15rem' : ''">
                         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        <span class="sidebar-new-label" x-show="!sidebarCollapsed">New</span>
+                        <span class="sidebar-new-label" x-show="!sidebarCollapsed">Novo</span>
                     </button>
 
                     <!-- Dropdown -->
@@ -640,25 +647,40 @@
             <!-- Navigation -->
             <nav class="sidebar-nav flex-1 overflow-y-auto py-2 px-3" :class="sidebarCollapsed ? 'px-2' : 'px-3'">
                 {% block sidebar_nav %}
+                {% if request.org %}
+                <a href="{% url 'rise_agency:dashboard' %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.app_name == 'rise_agency' and request.resolver_match.url_name == 'dashboard' %}active{% endif %}" title="Visão geral da agência">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                    <span class="sidebar-nav-label">Visão geral</span>
+                </a>
+                <a href="{% url 'organizations:workspaces' %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.app_name == 'organizations' and request.resolver_match.url_name == 'workspaces' %}active{% endif %}" title="Gestão de clientes">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M7 9h3M7 13h3M14 9h3M14 13h3M7 17h10"/></svg>
+                    <span class="sidebar-nav-label">Clientes</span>
+                </a>
+                <a href="{% url 'organizations:cross_workspace_calendar' %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.app_name == 'organizations' and request.resolver_match.url_name == 'cross_workspace_calendar' %}active{% endif %}" title="Calendário global">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4M8 15h4"/></svg>
+                    <span class="sidebar-nav-label">Calendário global</span>
+                </a>
+                <div class="sidebar-section-label">Espaço de trabalho</div>
+                {% endif %}
                 {% if request.workspace %}
                 <a href="{% url 'calendar:calendar' workspace_id=request.workspace.id %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'calendar' %}active{% endif %}">
                     <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <span class="sidebar-nav-label">Publish</span>
+                    <span class="sidebar-nav-label">Publicações</span>
                 </a>
                 <a href="{% url 'composer:create_landing' workspace_id=request.workspace.id %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'create_landing' or request.resolver_match.url_name == 'compose' %}active{% endif %}">
                     <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 00-4 12.73V16a1 1 0 001 1h6a1 1 0 001-1v-1.27A7 7 0 0012 2z"/><path d="M9 18h6"/><path d="M10 22h4"/><path d="M10 8.5c0 1.5 2 2.5 2 4"/><path d="M14 8.5c0 1.5-2 2.5-2 4"/></svg>
-                    <span class="sidebar-nav-label">Create Idea</span>
+                    <span class="sidebar-nav-label">Ideias</span>
                 </a>                
                 <a href="{% url 'inbox:feed' workspace_id=request.workspace.id %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.app_name == 'inbox' %}active{% endif %}">
                     <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                    <span class="sidebar-nav-label">Social Inbox</span>
+                    <span class="sidebar-nav-label">Mensagens</span>
                     {% if sidebar_unread_inbox_count %}<span class="sidebar-badge">{{ sidebar_unread_inbox_count }}</span>{% endif %}
                 </a>
                 {% endif %}
 
                 <a href="{% url 'notifications:list' %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'list' and request.resolver_match.app_name == 'notifications' %}active{% endif %}">
                     <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-                    <span class="sidebar-nav-label">Notifications</span>
+                    <span class="sidebar-nav-label">Notificações</span>
                 </a>
 
                 {% if request.workspace %}
@@ -898,7 +920,7 @@
                     <span class="text-sm font-semibold text-stone-800 truncate max-w-[160px]">{{ current_ws.name }}</span>
                     {% else %}
                     <div class="w-7 h-7 rounded-md flex items-center justify-center text-white text-[11px] font-bold" style="background: var(--primary);">P</div>
-                    <span class="text-sm font-semibold text-stone-800">Brightbean</span>
+                    <span class="text-sm font-semibold text-stone-800">RISE Content Hub</span>
                     {% endif %}
                     {% endwith %}
                 </div>
