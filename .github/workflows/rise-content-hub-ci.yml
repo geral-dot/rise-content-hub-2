@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - rise/content-hub-v2
-      - rise/client-center-phase1
+      - rise/restore-kpis-pdf-integrations
   pull_request:
     paths:
       - "django_rise_agency/**"

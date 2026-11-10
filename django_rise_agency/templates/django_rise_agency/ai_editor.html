@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Criar com IA · {{ workspace.name }} · RISE Content Hub{% endblock %}
+{% block content %}
+<div class="rise-tools-page">
+  <nav class="rise-hub-breadcrumb"><a href="{% url 'rise_agency:dashboard' %}">Visão geral</a><span>›</span><a href="{% url 'rise_agency:client_center' client_id=workspace.id %}">{{ workspace.name }}</a><span>›</span><strong>Criar com IA</strong></nav>
+  <header class="rise-tools-heading"><p class="rise-eyebrow">RISE / ASSISTENTE EDITORIAL</p><h1>Criar com inteligência</h1>
+    <p>Gera uma proposta de texto para <strong>{{ workspace.name }}</strong> com base na identidade da marca. O resultado fica guardado como rascunho e requer revisão humana.</p>
+  </header>
+  {% if not configured %}
+    <div class="rise-report-note"><strong>A geração com IA ainda não está ligada.</strong>
+      Um administrador da RISE deve configurar a chave de API OpenAI em Integrações antes de gerar conteúdos.
+    </div>
+  {% endif %}
+  <form class="rise-tools-section rise-ai-form" method="post" action="{% url 'rise_agency:ai_generate' client_id=workspace.id %}">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="rise-report-error">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="rise-report-field"><label for="{{ form.topic.id_for_label }}">Tema da publicação</label>{{ form.topic }}{{ form.topic.errors }}</div>
+    <div class="rise-report-field"><label for="{{ form.objective.id_for_label }}">Objetivo, público e informações factuais</label>{{ form.objective }}{{ form.objective.errors }}</div>
+    <div class="rise-report-field"><label for="{{ form.network.id_for_label }}">Rede social</label>{{ form.network }}{{ form.network.errors }}</div>
+    <button type="submit" {% if not configured %}disabled{% endif %}>Gerar rascunho e abrir no editor ↗</button>
+    <p class="rise-report-helper">Os dados introduzidos e as orientações da marca são enviados à API OpenAI apenas quando selecionas «Gerar». Não são enviadas listas de clientes, credenciais ou mensagens privadas.</p>
+  </form>
+</div>
+{% endblock %}

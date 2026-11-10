@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, rise/content-hub-v2, rise/client-center-phase1]
+    branches: [main, rise/content-hub-v2, rise/restore-kpis-pdf-integrations]
   pull_request:
     branches: [main, rise/content-hub-v2]
 
@@ -123,7 +123,7 @@ jobs:
       - name: Validate RISE Django integration
         run: |
           python manage.py check
-          pytest -q django_rise_agency/tests_django.py django_rise_agency/tests_dashboard.py django_rise_agency/tests_client_settings.py django_rise_agency/tests_client_center.py
+          pytest -q django_rise_agency/tests_django.py django_rise_agency/tests_dashboard.py django_rise_agency/tests_client_settings.py django_rise_agency/tests_client_center.py django_rise_agency/tests_operations.py
 
       - name: pytest
         run: pytest --cov=apps --cov-report=term-missing

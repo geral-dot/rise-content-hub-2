@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Mailchimp · RISE Content Hub{% endblock %}
+{% block content %}
+<div class="rise-tools-page">
+<nav class="rise-hub-breadcrumb"><a href="{% url 'rise_agency:integrations' %}">Integrações</a><span>›</span><strong>Mailchimp</strong></nav>
+<header class="rise-tools-heading"><p class="rise-eyebrow">RISE / EMAIL MARKETING</p><h1>Públicos Mailchimp</h1>
+<p>Públicos devolvidos pela API do Mailchimp. Esta consulta não altera subscritores nem envia emails.</p></header>
+<div class="rise-tools-section">
+{% for audience in audiences %}
+<div class="rise-tools-audience"><strong>{{ audience.name }}</strong><span>ID: {{ audience.id }}</span></div>
+{% empty %}<p>Ligação autorizada, mas não foram encontrados públicos na conta.</p>{% endfor %}
+</div>
+<a class="rise-tools-link" href="{% url 'rise_agency:integrations' %}">Voltar às integrações ↗</a>
+</div>
+{% endblock %}

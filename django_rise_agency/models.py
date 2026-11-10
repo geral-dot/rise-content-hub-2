@@ -6,6 +6,8 @@ Additive tables only; never change BrightBean core DB tables here.
 from django.conf import settings
 from django.db import models
 
+from apps.common.encryption import EncryptedTextField
+
 
 class RiseBrandProfile(models.Model):
     """Opt-in RISE policy per BrightBean workspace; other workspaces unaffected."""
@@ -119,3 +121,63 @@ class RiseEditorialAssignment(models.Model):
 
     def __str__(self):
         return f"{self.post_id}: {self.format} {self.period}"
+
+
+class RiseMonthlyReport(models.Model):
+    """Monthly RISE report with manually validated KPI values and narrative.
+
+    Null KPI = unknown, never silently converted to zero. The metrics are
+    manually maintained until a verified provider import is implemented.
+    """
+
+    workspace = models.ForeignKey("workspaces.Workspace", on_delete=models.CASCADE, related_name="rise_reports")
+    period = models.CharField(max_length=7, help_text="AAAA-MM")
+    followers = models.PositiveBigIntegerField(null=True, blank=True)
+    reach = models.PositiveBigIntegerField(null=True, blank=True)
+    impressions = models.PositiveBigIntegerField(null=True, blank=True)
+    interactions = models.PositiveBigIntegerField(null=True, blank=True)
+    link_clicks = models.PositiveBigIntegerField(null=True, blank=True)
+    leads = models.PositiveBigIntegerField(null=True, blank=True)
+    conversions = models.PositiveBigIntegerField(null=True, blank=True)
+    ad_spend = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    data_source = models.CharField(max_length=300, blank=True, default="")
+    summary = models.TextField(blank=True, default="")
+    conclusions = models.TextField(blank=True, default="")
+    next_steps = models.TextField(blank=True, default="")
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="rise_report_updates",
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["workspace", "period"], name="rise_monthly_report_unique")]
+        ordering = ["-period"]
+
+
+class RiseServiceCredential(models.Model):
+    """Encrypted per-organization tokens for optional API connectors.
+
+    Never expose a secret in templates, forms or logs, and never copy
+    credentials from the WordPress site without explicit authorization.
+    """
+
+    class Provider(models.TextChoices):
+        OPENAI = "openai", "OpenAI"
+        MAILCHIMP = "mailchimp", "Mailchimp"
+
+    organization = models.ForeignKey(
+        "organizations.Organization",
+        on_delete=models.CASCADE,
+        related_name="rise_service_credentials",
+    )
+    provider = models.CharField(max_length=25, choices=Provider.choices)
+    secret = EncryptedTextField(blank=True, default="")
+    data_center = models.CharField(max_length=12, blank=True, default="")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["organization", "provider"], name="rise_service_org_provider")]
