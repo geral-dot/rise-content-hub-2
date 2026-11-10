@@ -85,3 +85,37 @@ class RiseLegacySnapshot(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["source_table", "source_id"], name="rise_legacy_table_id")]
+
+
+class RiseEditorialAssignment(models.Model):
+    """Classificação editorial explícita para contabilização de avenças RISE.
+
+    Os posts legados não são classificados automaticamente: a distinção entre
+    post e story não pode ser inferida com segurança das variantes por canal.
+    """
+
+    class Format(models.TextChoices):
+        POST = "post", "Post"
+        STORY = "story", "Story"
+
+    post = models.OneToOneField(
+        "composer.Post",
+        on_delete=models.CASCADE,
+        related_name="rise_assignment",
+    )
+    period = models.CharField(max_length=7, help_text="AAAA-MM")
+    format = models.CharField(max_length=8, choices=Format.choices)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="rise_editorial_assignments",
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [models.Index(fields=["period", "format"], name="rise_assgn_period_format_idx")]
+
+    def __str__(self):
+        return f"{self.post_id}: {self.format} {self.period}"
