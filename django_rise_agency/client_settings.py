@@ -59,7 +59,7 @@ def _current_period(org):
 
 @login_required
 @require_http_methods(["GET", "POST"])
-def client_settings(request, workspace_id):
+def client_settings(request, client_id):
     org = getattr(request, "org", None)
     membership = getattr(request, "org_membership", None)
     if (
@@ -70,7 +70,7 @@ def client_settings(request, workspace_id):
         or membership.org_role not in (OrgMembership.OrgRole.OWNER, OrgMembership.OrgRole.ADMIN)
     ):
         raise Http404("Marca não disponível")
-    workspace = get_object_or_404(Workspace, pk=workspace_id, organization_id=org.pk, is_archived=False)
+    workspace = get_object_or_404(Workspace, pk=client_id, organization_id=org.pk, is_archived=False)
 
     if request.method == "POST":
         form = RiseClientSettingsForm(request.POST)
