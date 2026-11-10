@@ -652,7 +652,7 @@
                     <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
                     <span class="sidebar-nav-label">Visão geral</span>
                 </a>
-                <a href="{% url 'organizations:workspaces' %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.app_name == 'organizations' and request.resolver_match.url_name == 'workspaces' %}active{% endif %}" title="Gestão de clientes">
+                <a href="{% url 'rise_agency:dashboard' %}#rise-clients-title" class="mb-1 sidebar-nav-item {% if request.resolver_match.app_name == 'organizations' and request.resolver_match.url_name == 'workspaces' %}active{% endif %}" title="Gestão de clientes">
                     <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M7 9h3M7 13h3M14 9h3M14 13h3M7 17h10"/></svg>
                     <span class="sidebar-nav-label">Clientes</span>
                 </a>
@@ -660,6 +660,12 @@
                     <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4M8 15h4"/></svg>
                     <span class="sidebar-nav-label">Calendário global</span>
                 </a>
+                {% if request.workspace and request.workspace_membership and request.workspace_membership.effective_permissions.create_posts %}
+                <a href="{% url 'rise_agency:client_center' client_id=request.workspace.id %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'client_center' %}active{% endif %}" title="Ficha de cliente RISE">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M7 9h10M7 13h7M7 17h10"/></svg>
+                    <span class="sidebar-nav-label">Ficha do cliente</span>
+                </a>
+                {% endif %}
                 <div class="sidebar-section-label">Espaço de trabalho</div>
                 {% if request.workspace and request.org_membership.org_role == 'owner' or request.workspace and request.org_membership.org_role == 'admin' %}
                 <a href="{% url 'rise_agency:client_settings' client_id=request.workspace.id %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'client_settings' %}active{% endif %}" title="Avença e orientações da marca">
