@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - rise/content-hub-v2
-      - rise/identity-ptpt-ux-v2
+      - rise/client-center-phase1
   pull_request:
     paths:
       - "django_rise_agency/**"
