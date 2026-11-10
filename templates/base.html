@@ -656,6 +656,12 @@
                     <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M7 9h3M7 13h3M14 9h3M14 13h3M7 17h10"/></svg>
                     <span class="sidebar-nav-label">Clientes</span>
                 </a>
+                {% if request.org_membership.org_role == 'owner' or request.org_membership.org_role == 'admin' %}
+                <a href="{% url 'rise_agency:integrations' %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'integrations' %}active{% endif %}" title="Redes sociais, Mailchimp e inteligência artificial">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6M15 3v6M5 9h14M7 9v6a5 5 0 0010 0V9M12 20v2"/></svg>
+                    <span class="sidebar-nav-label">Integrações</span>
+                </a>
+                {% endif %}
                 <a href="{% url 'organizations:cross_workspace_calendar' %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.app_name == 'organizations' and request.resolver_match.url_name == 'cross_workspace_calendar' %}active{% endif %}" title="Calendário global">
                     <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4M8 15h4"/></svg>
                     <span class="sidebar-nav-label">Calendário global</span>
@@ -664,6 +670,14 @@
                 <a href="{% url 'rise_agency:client_center' client_id=request.workspace.id %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'client_center' %}active{% endif %}" title="Ficha de cliente RISE">
                     <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M7 9h10M7 13h7M7 17h10"/></svg>
                     <span class="sidebar-nav-label">Ficha do cliente</span>
+                </a>
+                <a href="{% url 'rise_agency:report_detail' client_id=request.workspace.id %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'report_detail' %}active{% endif %}" title="Indicadores e relatórios em PDF">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h13l3 3v15H4z"/><path d="M8 11h8M8 15h8M8 7h4"/></svg>
+                    <span class="sidebar-nav-label">KPIs e relatórios</span>
+                </a>
+                <a href="{% url 'rise_agency:ai_editor' client_id=request.workspace.id %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'ai_editor' %}active{% endif %}" title="Gerador de conteúdos IA">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/></svg>
+                    <span class="sidebar-nav-label">Criar com IA</span>
                 </a>
                 {% endif %}
                 <div class="sidebar-section-label">Espaço de trabalho</div>

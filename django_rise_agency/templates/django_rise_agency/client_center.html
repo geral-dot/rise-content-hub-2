@@ -21,6 +21,9 @@
       {% if has_workspace_access %}<a class="rise-hub-button ghost" href="{% url 'calendar:calendar' workspace_id=workspace.id %}">Calendário editorial ↗</a>{% endif %}
       {% if can_approve and profile.enforce_dual_approval %}<a class="rise-hub-button ghost" href="{% url 'rise_agency:approvals' workspace_id=workspace.id %}">Aprovações ↗</a>{% endif %}
       {% if is_manager %}<a class="rise-hub-button ghost" href="{% url 'rise_agency:client_settings' client_id=workspace.id %}">Avença e identidade ↗</a>{% endif %}
+      {% if can_create or is_manager %}<a class="rise-hub-button ghost" href="{% url 'rise_agency:report_detail' client_id=workspace.id %}?period={{ period }}">KPIs e relatório ↗</a>{% endif %}
+      {% if can_create %}<a class="rise-hub-button ghost" href="{% url 'rise_agency:ai_editor' client_id=workspace.id %}">Gerar texto com IA ↗</a>{% endif %}
+      {% if is_manager %}<a class="rise-hub-button ghost" href="{% url 'rise_agency:integrations' %}">Integrações ↗</a>{% endif %}
     </div>
   </section>
 
