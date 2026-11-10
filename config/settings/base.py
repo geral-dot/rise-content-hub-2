@@ -21,6 +21,7 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 APP_URL = env("APP_URL")
+RISE_AGENCY_HOME_ENABLED = env.bool("RISE_AGENCY_HOME_ENABLED", default=False)
 
 # Application definition
 
