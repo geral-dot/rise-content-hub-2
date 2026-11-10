@@ -161,3 +161,63 @@ main.rise-workspace-main h1 {letter-spacing:-.035em;font-weight:750;}
 @media(prefers-reduced-motion:reduce) {
   aside.rise-app-sidebar * {transition:none!important;}
 }
+
+
+/* Login RISE: monograma de assinatura, sem imagem da marca anterior. */
+.rise-login-mark {
+  display:flex;align-items:center;justify-content:center;margin:0 auto 19px;
+  width:60px;height:60px;border-radius:14px;
+  background:#050006;color:#BECC43;font-size:32px;font-weight:850;
+  box-shadow:0 8px 24px rgba(5,0,6,.12);
+}
+.auth-card .btn-brand:hover {background:#cedd5a!important;box-shadow:0 5px 20px rgba(190,204,67,.23)!important;}
+
+/* Portal do cliente — cabeçalho escuro + contraste AA nos links. */
+.rise-portal-header .font-bold {color:#fff!important;}
+.rise-portal-header .rise-portal-logo {white-space:nowrap;}
+.rise-portal-header nav a,.rise-portal-header>a {color:#e3e3e1!important;}
+.rise-portal-header nav a[style*="background: var(--primary)"] {
+  background:#BECC43!important;color:#050006!important;
+}
+.rise-portal-header a[href*="logout"] {color:#b5b4b9!important;}
+.rise-portal-header a[href*="logout"]:hover {color:#fff!important;}
+.rise-portal-header .rise-portal-logo small {display:block;line-height:1.1;}
+
+/* Gestão de cliente / avença RISE. */
+.rise-brand-settings {max-width:950px;width:100%;margin:0 auto;padding:0 0 32px;}
+.rise-settings-top {display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:26px;border-bottom:1px solid #e9ebdf;padding-bottom:20px;}
+.rise-settings-top a {color:#46521d;font-size:12px;font-weight:700;text-decoration:none;}
+.rise-settings-top span {color:#9a9c8f;font-size:10px;letter-spacing:.17em;}
+.rise-settings-heading {display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:25px;}
+.rise-settings-heading h1 {font-size:clamp(26px,3.2vw,37px);letter-spacing:-.04em;margin:0 0 9px;color:#050006;}
+.rise-settings-heading p:last-child {font-size:13px;color:#747970;max-width:575px;line-height:1.65;}
+.rise-settings-heading .rise-client-mark {width:55px;height:55px;border-radius:12px;font-size:22px;flex-shrink:0;}
+.rise-brand-form {border:1px solid #e5e8de;border-radius:15px;background:white;overflow:hidden;}
+.rise-form-section {padding:29px 34px;border-bottom:1px solid #ecefe7;}
+.rise-form-section h2 {font-size:19px;font-weight:740;color:#050006;letter-spacing:-.025em;margin:0 0 5px;}
+.rise-form-description {color:#7a7f74;font-size:12px;line-height:1.65;margin:0 0 20px;max-width:660px;}
+.rise-form-grid {display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:13px;margin-bottom:20px;}
+.rise-field {display:flex;flex-direction:column;gap:8px;margin-bottom:16px;min-width:0;}
+.rise-field label {font-size:12px;font-weight:720;color:#323531;}
+.rise-field :is(input:not([type="checkbox"]),textarea) {
+  border:1px solid #dce0d4;border-radius:8px;background:#fbfcf8;
+  color:#050006;font-family:inherit;font-size:13px;
+  padding:11px 13px;min-height:42px;max-width:100%;width:100%;
+}
+.rise-field textarea {min-height:100px;resize:vertical;}
+.rise-field :is(input,textarea):focus {outline:2px solid rgba(190,204,67,.48);border-color:#899630;}
+.rise-field .errorlist,.rise-form-section .errorlist {color:#a31b1b;margin:1px 0 6px;font-size:12px;}
+.rise-toggle-row {display:flex;gap:13px;align-items:flex-start;padding:17px;border:1px solid #e4e9d4;background:#f9fbef;border-radius:10px;cursor:pointer;}
+.rise-toggle-row input {width:18px;height:18px;accent-color:#718018;flex-shrink:0;margin-top:2px;}
+.rise-toggle-row strong {display:block;font-size:13px;color:#191b17;}
+.rise-toggle-row small {display:block;color:#72786b;font-size:11px;line-height:1.65;margin-top:6px;}
+.rise-form-actions {display:flex;justify-content:flex-end;align-items:center;gap:18px;padding:23px 34px;background:#fbfcf9;}
+.rise-form-actions a {font-size:12px;font-weight:700;color:#777d73;text-decoration:none;}
+.rise-form-actions button {border:0;border-radius:9px;background:#050006;color:#BECC43;font-size:12px;font-weight:750;cursor:pointer;padding:12px 18px;}
+.rise-form-actions button:hover {background:#252528;}
+.rise-form-error {color:#a31b1b;background:#fff0ee;padding:12px;border-radius:8px;}
+@media(max-width:700px) {
+  .rise-form-grid {grid-template-columns:1fr;}
+  .rise-form-section {padding:22px;}
+  .rise-form-actions {padding:20px;}
+}
