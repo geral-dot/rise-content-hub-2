@@ -26,7 +26,7 @@ class RiseClientSettingsTests(TestCase):
         self.client.force_login(self.user)
 
     def url(self, ws):
-        return reverse("rise_agency:client_settings", kwargs={"workspace_id": ws.pk})
+        return reverse("rise_agency:client_settings", kwargs={"client_id": ws.pk})
 
     def test_admin_can_save_retainer_and_editorial_rules(self):
         res = self.client.post(
