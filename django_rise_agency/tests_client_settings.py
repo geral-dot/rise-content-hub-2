@@ -1,5 +1,6 @@
 """Testes de autorização para configurações exclusivas da RISE."""
 from django.test import TestCase
+from django.utils import timezone
 from django.urls import reverse
 
 from apps.accounts.models import User
@@ -14,6 +15,8 @@ class RiseClientSettingsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = User.objects.create_user(email="agency-admin@example.test", password="test-only")
+        cls.user.tos_accepted_at = timezone.now()
+        cls.user.save(update_fields=["tos_accepted_at"])
         cls.org = Organization.objects.create(name="RISE Agência")
         cls.ws = Workspace.objects.create(organization=cls.org, name="Marca 1")
         cls.external_org = Organization.objects.create(name="Organização Externa")
