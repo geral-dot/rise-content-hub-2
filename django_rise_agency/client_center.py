@@ -8,6 +8,7 @@ são inventados como posts nem stories.
 import re
 from datetime import datetime
 from urllib.parse import urlencode
+from uuid import UUID
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from django.contrib import messages
@@ -195,7 +196,11 @@ def classify_content(request, client_id):
     content_format = request.POST.get("format", "").strip()
     if content_format not in RiseEditorialAssignment.Format.values:
         return HttpResponseBadRequest("Formato editorial inválido")
-    post = get_object_or_404(Post, pk=request.POST.get("post_id"), workspace_id=workspace.pk)
+    try:
+        post_id = UUID(request.POST.get("post_id", ""))
+    except (ValueError, AttributeError):
+        return HttpResponseBadRequest("Identificador de conteúdo inválido")
+    post = get_object_or_404(Post, pk=post_id, workspace_id=workspace.pk)
     RiseEditorialAssignment.objects.update_or_create(
         post=post,
         defaults={
