@@ -1,4 +1,5 @@
 """Vista geral da agência RISE: só leitura e com limites de organização/permissões."""
+
 from collections import defaultdict
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -49,9 +50,7 @@ def agency_dashboard(request):
 
     post_totals = {
         item["workspace_id"]: item["total"]
-        for item in Post.objects.filter(workspace_id__in=client_ids)
-        .values("workspace_id")
-        .annotate(total=Count("id"))
+        for item in Post.objects.filter(workspace_id__in=client_ids).values("workspace_id").annotate(total=Count("id"))
     }
 
     status_totals = {
@@ -72,13 +71,12 @@ def agency_dashboard(request):
         local_now = timezone.now()
     period = local_now.strftime("%Y-%m")
     retainers = {
-        item.workspace_id: item
-        for item in RiseRetainer.objects.filter(workspace_id__in=client_ids, period=period)
+        item.workspace_id: item for item in RiseRetainer.objects.filter(workspace_id__in=client_ids, period=period)
     }
     dual_approval_ids = set(
-        RiseBrandProfile.objects.filter(
-            workspace_id__in=client_ids, enforce_dual_approval=True
-        ).values_list("workspace_id", flat=True)
+        RiseBrandProfile.objects.filter(workspace_id__in=client_ids, enforce_dual_approval=True).values_list(
+            "workspace_id", flat=True
+        )
     )
 
     summary = defaultdict(int)
@@ -103,9 +101,7 @@ def agency_dashboard(request):
                 "published": published,
                 "retainer": retainers.get(workspace.pk),
                 "has_access": permission is not None,
-                "can_approve": bool(
-                    permission and permission.effective_permissions.get("approve_posts", False)
-                ),
+                "can_approve": bool(permission and permission.effective_permissions.get("approve_posts", False)),
                 "dual_approval": workspace.pk in dual_approval_ids,
             }
         )

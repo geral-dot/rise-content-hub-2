@@ -1,4 +1,5 @@
 """Testes de isolamento da vista de agência (sem contas sociais reais)."""
+
 from unittest.mock import patch
 
 from django.http import Http404, HttpResponse
