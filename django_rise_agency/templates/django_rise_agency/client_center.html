@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}{{ workspace.name }} · Clientes · RISE Content Hub{% endblock %}
+{% block content %}
+<div class="rise-client-hub">
+  <nav class="rise-hub-breadcrumb" aria-label="Navegação"><a href="{% url 'rise_agency:dashboard' %}">Visão geral</a><span>›</span><span>Clientes</span><span>›</span><strong>{{ workspace.name }}</strong></nav>
+
+  <section class="rise-hub-hero">
+    <div class="rise-hub-hero-top">
+      <span class="rise-eyebrow">CENTRO DE OPERAÇÕES / MARCA</span>
+      <span class="rise-hub-period">MÊS {{ period }}</span>
+    </div>
+    <div class="rise-hub-hero-body">
+      <div class="rise-hub-monogram" aria-hidden="true">{{ workspace.name|first|upper }}</div>
+      <div class="rise-hub-hero-copy">
+        <h1>{{ workspace.name }}</h1>
+        <p>{% if workspace.description %}{{ workspace.description }}{% else %}Planeamento, avença e acompanhamento editorial numa única área.{% endif %}</p>
+      </div>
+    </div>
+    <div class="rise-hub-actions">
+      {% if can_create %}<a class="rise-hub-button lime" href="{% url 'composer:compose' workspace_id=workspace.id %}">+ Criar conteúdo</a>{% endif %}
+      {% if has_workspace_access %}<a class="rise-hub-button ghost" href="{% url 'calendar:calendar' workspace_id=workspace.id %}">Calendário editorial ↗</a>{% endif %}
+      {% if can_approve and profile.enforce_dual_approval %}<a class="rise-hub-button ghost" href="{% url 'rise_agency:approvals' workspace_id=workspace.id %}">Aprovações ↗</a>{% endif %}
+      {% if is_manager %}<a class="rise-hub-button ghost" href="{% url 'rise_agency:client_settings' client_id=workspace.id %}">Avença e identidade ↗</a>{% endif %}
+    </div>
+  </section>
+
+  <div class="rise-hub-monthbar">
+    <div><p class="rise-eyebrow">ACOMPANHAMENTO EDITORIAL</p><h2>Avença e entregas</h2></div>
+    <form method="get" class="rise-hub-month-form">
+      <label for="rise-month-selector">Mês de referência</label>
+      <input id="rise-month-selector" type="month" name="period" value="{{ period }}" min="2000-01" max="2099-12" required>
+      <button type="submit">Ver mês</button>
+    </form>
+  </div>
+  {% if retainer %}
+  <section class="rise-hub-metrics" aria-label="Execução mensal da avença">
+    <article class="rise-hub-metric">
+      <span class="rise-hub-label">Posts classificados</span>
+      <strong>{{ counts.posts }} <small>/ {{ retainer.posts_included }}</small></strong>
+      <div class="rise-hub-meter" role="meter" aria-label="Posts classificados" aria-valuemin="0" aria-valuemax="{{ retainer.posts_included }}" aria-valuenow="{{ counts.posts }}"><span style="width: {{ posts_progress }}%"></span></div>
+      <p>{{ posts_remaining }} por produzir segundo a classificação editorial</p>
+    </article>
+    <article class="rise-hub-metric">
+      <span class="rise-hub-label">Stories classificadas</span>
+      <strong>{{ counts.stories }} <small>/ {{ retainer.stories_included }}</small></strong>
+      <div class="rise-hub-meter" role="meter" aria-label="Stories classificadas" aria-valuemin="0" aria-valuemax="{{ retainer.stories_included }}" aria-valuenow="{{ counts.stories }}"><span style="width: {{ stories_progress }}%"></span></div>
+      <p>{{ stories_remaining }} por produzir segundo a classificação editorial</p>
+    </article>
+    <article class="rise-hub-metric">
+      <span class="rise-hub-label">Publicações confirmadas</span>
+      <strong>{{ counts.posts_published }} <small>posts</small></strong>
+      <p>{{ counts.stories_published }} stories com pelo menos uma variante publicada</p>
+    </article>
+    <article class="rise-hub-metric">
+      <span class="rise-hub-label">Por classificar</span>
+      <strong>{{ unclassified_count }}</strong>
+      <p>Conteúdos criados neste mês ainda sem formato atribuído</p>
+    </article>
+  </section>
+  {% if retainer.notes %}<p class="rise-hub-contract-note"><strong>Notas da avença:</strong> {{ retainer.notes|linebreaksbr }}</p>{% endif %}
+  {% else %}
+  <section class="rise-hub-no-contract">
+    <div><strong>Sem avença configurada para {{ period }}</strong><p>É possível organizar os conteúdos, mas os limites contratados só serão apresentados depois de registares a avença.</p></div>
+    {% if is_manager %}<a href="{% url 'rise_agency:client_settings' client_id=workspace.id %}">Configurar avença ↗</a>{% endif %}
+  </section>
+  {% endif %}
+
+  <p class="rise-hub-disclaimer">Os números acima contabilizam <strong>conteúdos classificados manualmente</strong>, não entregas por rede social. Um post enviado para três canais conta uma vez. Publicado significa pelo menos um canal publicado; não significa publicação concluída em todos os canais.</p>
+
+  <div class="rise-hub-grid">
+    <section class="rise-hub-panel" id="conteudos" aria-labelledby="rise-hub-content-title">
+      <div class="rise-hub-panel-head">
+        <div><p class="rise-eyebrow">01 / PLANEAMENTO</p><h2 id="rise-hub-content-title">Conteúdos do mês <span class="rise-counter">{{ all_classified_count }}</span></h2></div>
+        {% if can_create %}<a href="{% url 'composer:compose' workspace_id=workspace.id %}">Novo conteúdo ↗</a>{% endif %}
+      </div>
+      {% if rows %}
+      <div class="rise-hub-post-list">
+        {% for item in rows %}
+        <article class="rise-hub-post">
+          <div class="rise-hub-post-main">
+            <span class="rise-hub-type">{{ item.assignment.get_format_display }}</span>
+            <strong>{{ item.post.title|default:item.post.caption|default:"Conteúdo sem título"|truncatechars:78 }}</strong>
+            <p>{{ item.post.caption|default:"Sem copy registada"|truncatechars:115 }}</p>
+            <div class="rise-hub-post-meta">
+              <span>{{ item.status_name }}</span>
+              {% if item.approval %}
+                {% if item.approval.approved %}<span class="rise-hub-success">Texto e visual aprovados</span>
+                {% elif item.approval.stale %}<span class="rise-hub-warning">Nova aprovação necessária</span>
+                {% else %}<span>Em aprovação RISE</span>{% endif %}
+              {% endif %}
+            </div>
+          </div>
+          <div class="rise-hub-post-actions">
+            {% if can_create %}<a href="{% url 'composer:compose_edit' workspace_id=workspace.id post_id=item.post.id %}">Editar ↗</a>{% endif %}
+            {% if can_classify %}
+            <form method="post" action="{% url 'rise_agency:classify_content' client_id=workspace.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="post_id" value="{{ item.post.id }}">
+              <input type="hidden" name="period" value="{{ period }}">
+              <label class="sr-only" for="fmt-{{ item.post.id }}">Formato</label>
+              <select id="fmt-{{ item.post.id }}" name="format" aria-label="Formato de {{ item.post.title|default:'conteúdo' }}">
+                <option value="post" {% if item.assignment.format == "post" %}selected{% endif %}>Post</option>
+                <option value="story" {% if item.assignment.format == "story" %}selected{% endif %}>Story</option>
+              </select>
+              <button type="submit">Atualizar</button>
+            </form>
+            {% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% if all_classified_count > 60 %}<p class="rise-hub-notice">A apresentar os 60 conteúdos mais recentes. Os indicadores contabilizam todos os conteúdos classificados.</p>{% endif %}
+      {% else %}
+      <div class="rise-hub-empty"><strong>Ainda não há conteúdos classificados para este mês.</strong><p>Os conteúdos novos ou existentes podem ser associados à avença por um membro da equipa RISE.</p></div>
+      {% endif %}
+    </section>
+    <aside class="rise-hub-sidebar">
+      <section class="rise-hub-panel" aria-labelledby="rise-hub-assign-title">
+        <div class="rise-hub-panel-head"><div><p class="rise-eyebrow">02 / ORGANIZAÇÃO</p><h2 id="rise-hub-assign-title">Por classificar <span class="rise-counter">{{ unclassified_count }}</span></h2></div></div>
+        {% if unclassified_rows %}
+        {% for post in unclassified_rows %}
+        <div class="rise-hub-unassigned">
+          <strong>{{ post.title|default:post.caption|default:"Publicação sem título"|truncatechars:64 }}</strong>
+          <span>{{ post.rise_status_label }} · {{ post.created_at|date:"d/m/Y" }}</span>
+          {% if can_classify %}
+          <form method="post" action="{% url 'rise_agency:classify_content' client_id=workspace.id %}">
+            {% csrf_token %}
+            <input type="hidden" name="post_id" value="{{ post.id }}">
+            <input type="hidden" name="period" value="{{ period }}">
+            <label class="sr-only" for="unknown-{{ post.id }}">Formato</label>
+            <select id="unknown-{{ post.id }}" name="format"><option value="post">Post</option><option value="story">Story</option></select>
+            <button type="submit">Associar</button>
+          </form>
+          {% endif %}
+        </div>
+        {% endfor %}
+        {% if unclassified_count > 35 %}<p class="rise-hub-notice">A apresentar os 35 conteúdos mais recentes que faltam classificar.</p>{% endif %}
+        {% else %}
+        <div class="rise-hub-empty compact"><strong>Sem conteúdos por classificar neste mês.</strong></div>
+        {% endif %}
+      </section>
+
+      <section class="rise-hub-panel">
+        <p class="rise-eyebrow">03 / IDENTIDADE</p><h2>Orientações da marca</h2>
+        {% if profile and profile.voice_guidelines %}
+        <div class="rise-hub-voice">{{ profile.voice_guidelines|linebreaksbr }}</div>
+        {% else %}<p class="rise-hub-muted">Ainda não foram definidas orientações de tom de voz para esta marca.</p>{% endif %}
+        {% if is_manager %}<a class="rise-hub-textlink" href="{% url 'rise_agency:client_settings' client_id=workspace.id %}">Editar orientações ↗</a>{% endif %}
+      </section>
+    </aside>
+  </div>
+</div>
+{% endblock %}
