@@ -195,7 +195,7 @@ PASSWORD_HASHERS = [
 ]
 
 # Internationalization
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = env("RISE_LANGUAGE_CODE", default="en-us")
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
