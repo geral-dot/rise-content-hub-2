@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Dashboard | RISE Content Hub{% endblock %}
+{% block content %}
+<div class="rise-dashboard">
+    <section class="rise-dashboard-hero" aria-labelledby="rise-title">
+        <div class="rise-hero-top"><span class="rise-kicker">RISE / AGENCY OPERATIONS</span><span class="rise-hero-dot">●</span></div>
+        <div class="rise-hero-copy">
+            <p class="rise-eyebrow">VISÃO DA AGÊNCIA</p>
+            <h1 id="rise-title">Direção para<br><em>cada marca.</em></h1>
+            <p>Uma visão central dos conteúdos, aprovações e publicações das marcas que gerimos.</p>
+        </div>
+        <div class="rise-hero-bottom"><span>{{ agency.name }}</span><span>{{ period }}</span></div>
+    </section>
+    <section class="rise-stats" aria-label="Indicadores editoriais">
+        <div class="rise-stat"><span class="rise-stat-icon">↗</span><div class="rise-stat-number">{{ client_count }}</div><div class="rise-stat-label">Clientes ativos</div></div>
+        <div class="rise-stat"><span class="rise-stat-icon">▤</span><div class="rise-stat-number">{{ summary.posts|default:0 }}</div><div class="rise-stat-label">Conteúdos registados</div></div>
+        <div class="rise-stat"><span class="rise-stat-icon">◷</span><div class="rise-stat-number">{{ summary.pending|default:0 }}</div><div class="rise-stat-label">Entregas em aprovação</div></div>
+        <div class="rise-stat"><span class="rise-stat-icon">↗</span><div class="rise-stat-number">{{ summary.scheduled|default:0 }}</div><div class="rise-stat-label">Entregas agendadas</div></div>
+    </section>
+    <section class="rise-client-section" aria-labelledby="rise-clients-title">
+        <div class="rise-section-heading">
+            <div><p class="rise-eyebrow">OPERAÇÃO MULTICLIENTE</p><h2 id="rise-clients-title">Carteira de clientes <span class="rise-counter">{{ client_count }}</span></h2></div>
+            <div class="rise-section-actions">
+                <a class="rise-link-subtle" href="{% url 'organizations:cross_workspace_calendar' %}">Calendário global <span aria-hidden="true">↗</span></a>
+                <a class="rise-cta" href="{% url 'organizations:workspaces' %}">Gerir espaços <span aria-hidden="true">↗</span></a>
+            </div>
+        </div>
+        {% if clients %}
+        <div class="rise-clients-grid">
+        {% for row in clients %}
+            <article class="rise-client-card">
+                <div class="rise-client-card-top">
+                    <div class="rise-client-mark">{{ row.workspace.name|first|upper }}</div>
+                    {% if row.pending %}<span class="rise-client-pill attention">{{ row.pending }} em aprovação</span>
+                    {% else %}<span class="rise-client-pill">Sem pendências</span>{% endif %}
+                </div>
+                <h3>{{ row.workspace.name }}</h3>
+                <p class="rise-client-description">{% if row.workspace.description %}{{ row.workspace.description|truncatechars:85 }}{% else %}Espaço editorial da marca{% endif %}</p>
+                <div class="rise-client-stats">
+                    <div><strong>{{ row.post_count }}</strong><span>Conteúdos</span></div>
+                    <div><strong>{{ row.scheduled }}</strong><span>Agendadas</span></div>
+                    <div><strong>{{ row.published }}</strong><span>Publicadas</span></div>
+                </div>
+                <div class="rise-client-meta">
+                    {% if row.retainer %}<span>Avença {{ period }}: {{ row.retainer.posts_included }} posts · {{ row.retainer.stories_included }} stories</span>
+                    {% else %}<span>Avença ainda não configurada</span>{% endif %}
+                </div>
+                <div class="rise-client-actions">
+                    {% if row.has_access %}
+                    <a href="{% url 'calendar:calendar' workspace_id=row.workspace.id %}">Abrir calendário <span aria-hidden="true">↗</span></a>
+                    {% else %}
+                    <span class="rise-access-note">Acesso ao espaço não atribuído</span>
+                    {% endif %}
+                    {% if row.dual_approval and row.can_approve %}
+                    <a href="{% url 'rise_agency:approvals' workspace_id=row.workspace.id %}">Aprovações RISE</a>
+                    {% endif %}
+                </div>
+            </article>
+        {% endfor %}
+        </div>
+        {% else %}
+        <div class="rise-empty-state">
+            <strong>O primeiro passo é criar a carteira de clientes.</strong>
+            <p>Cria um espaço de trabalho por marca para centralizar planeamento, conteúdos e aprovações.</p>
+            <a href="{% url 'organizations:workspaces' %}">Gerir espaços de trabalho ↗</a>
+        </div>
+        {% endif %}
+    </section>
+    <p class="rise-data-note">Indicadores calculados a partir dos registos da aplicação. As entregas por canal podem corresponder a variantes de um mesmo conteúdo; os valores de avença são contratados, não consumo executado.</p>
+</div>
+{% endblock %}
