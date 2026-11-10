@@ -18,13 +18,17 @@ class RiseClientSettingsTests(TestCase):
         cls.user = User.objects.create_user(email="agency-admin@example.test", password="test-only")
         cls.user.tos_accepted_at = timezone.now()
         cls.user.save(update_fields=["tos_accepted_at"])
-        cls.org = Organization.objects.create(name="RISE Agência")
+        # O BrightBean cria automaticamente a organização principal ao criar um utilizador.
+        # Reutilizá-la evita uma segunda filiação que o middleware v1 não suporta.
+        cls.org_member = OrgMembership.objects.get(user=cls.user)
+        cls.org_member.org_role = OrgMembership.OrgRole.ADMIN
+        cls.org_member.save(update_fields=["org_role"])
+        cls.org = cls.org_member.organization
+        cls.org.name = "RISE Agência"
+        cls.org.save(update_fields=["name"])
         cls.ws = Workspace.objects.create(organization=cls.org, name="Marca 1")
         cls.external_org = Organization.objects.create(name="Organização Externa")
         cls.external_ws = Workspace.objects.create(organization=cls.external_org, name="Marca Secreta")
-        cls.org_member = OrgMembership.objects.create(
-            user=cls.user, organization=cls.org, org_role=OrgMembership.OrgRole.ADMIN
-        )
 
     def setUp(self):
         self.client.force_login(self.user)
