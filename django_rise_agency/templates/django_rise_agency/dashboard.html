@@ -47,6 +47,9 @@
                     {% else %}<span>Avença ainda não configurada</span>{% endif %}
                 </div>
                 <div class="rise-client-actions">
+                    {% if is_manager %}
+                    <a href="{% url 'rise_agency:client_settings' workspace_id=row.workspace.id %}">Avença e marca</a>
+                    {% endif %}
                     {% if row.has_access %}
                     <a href="{% url 'calendar:calendar' workspace_id=row.workspace.id %}">Abrir calendário <span aria-hidden="true">↗</span></a>
                     {% else %}
