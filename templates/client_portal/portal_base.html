@@ -1,16 +1,17 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-PT">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Client Portal{% endblock %}</title>
+    <title>{% block title %}Portal do cliente · RISE Content Hub{% endblock %}</title>
     <link rel="icon" href="{% static 'favicon/favicon.ico' %}" sizes="any">
     <link rel="icon" type="image/svg+xml" href="{% static 'favicon/favicon.svg' %}">
     <link rel="icon" type="image/png" sizes="96x96" href="{% static 'favicon/favicon-96x96.png' %}">
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}">
     <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
     <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'django_rise_agency/agency.css' %}">
     {% block extra_head %}{% endblock %}
 </head>
 <body class="min-h-screen" style="background: var(--surface-1); font-family: var(--font-body); color: var(--text-primary);">
@@ -22,11 +23,12 @@
     </script>
 
     <!-- Top bar -->
-    <header class="sticky top-0 z-30 border-b" style="background: var(--surface-0); border-color: var(--border);">
+    <header class="rise-portal-header sticky top-0 z-30 border-b">
         <div class="max-w-5xl mx-auto px-4 sm:px-6">
             <div class="flex items-center justify-between h-14">
                 <!-- Left: Logo + workspace -->
                 <div class="flex items-center gap-3">
+                    <span class="rise-portal-logo"><b>R</b><span>RISE <small>CONTENT HUB</small></span></span>
                     {% if request.org and request.org.logo_url %}
                     <img src="{{ request.org.logo_url }}" alt="" class="h-7 w-auto">
                     {% else %}
@@ -43,28 +45,28 @@
                         <a href="{% url 'client_portal:dashboard' %}"
                            class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full transition-colors {% if request.resolver_match.url_name == 'dashboard' %}text-white{% else %}hover:bg-black/[0.04]{% endif %}"
                            {% if request.resolver_match.url_name == 'dashboard' %}style="background: var(--primary); color: white;"{% else %}style="color: var(--text-secondary);"{% endif %}>
-                            Home
+                            Início
                         </a>
                         <a href="{% url 'client_portal:approval_queue' %}"
                            class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full transition-colors {% if request.resolver_match.url_name == 'approval_queue' %}text-white{% else %}hover:bg-black/[0.04]{% endif %}"
                            {% if request.resolver_match.url_name == 'approval_queue' %}style="background: var(--primary); color: white;"{% else %}style="color: var(--text-secondary);"{% endif %}>
-                            Approvals
+                            Aprovações
                         </a>
                         <a href="{% url 'client_portal:published' %}"
                            class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full transition-colors {% if request.resolver_match.url_name == 'published' %}text-white{% else %}hover:bg-black/[0.04]{% endif %}"
                            {% if request.resolver_match.url_name == 'published' %}style="background: var(--primary); color: white;"{% else %}style="color: var(--text-secondary);"{% endif %}>
-                            Published
+                            Publicadas
                         </a>
                         <a href="{% url 'client_portal:activity' %}"
                            class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full transition-colors {% if request.resolver_match.url_name == 'activity' %}text-white{% else %}hover:bg-black/[0.04]{% endif %}"
                            {% if request.resolver_match.url_name == 'activity' %}style="background: var(--primary); color: white;"{% else %}style="color: var(--text-secondary);"{% endif %}>
-                            Activity
+                            Atividade
                         </a>
                     </nav>
                     <a href="{% url 'accounts:logout' %}"
                        class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full transition-colors hover:bg-black/[0.04]"
                        style="color: var(--text-tertiary);">
-                        Log out
+                        Terminar sessão
                     </a>
                 </div>
             </div>
@@ -74,22 +76,22 @@
                 <a href="{% url 'client_portal:dashboard' %}"
                    class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full flex-shrink-0 transition-colors {% if request.resolver_match.url_name == 'dashboard' %}text-white{% else %}hover:bg-black/[0.04]{% endif %}"
                    {% if request.resolver_match.url_name == 'dashboard' %}style="background: var(--primary);"{% else %}style="color: var(--text-secondary);"{% endif %}>
-                    Home
+                    Início
                 </a>
                 <a href="{% url 'client_portal:approval_queue' %}"
                    class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full flex-shrink-0 transition-colors {% if request.resolver_match.url_name == 'approval_queue' %}text-white{% else %}hover:bg-black/[0.04]{% endif %}"
                    {% if request.resolver_match.url_name == 'approval_queue' %}style="background: var(--primary);"{% else %}style="color: var(--text-secondary);"{% endif %}>
-                    Approvals
+                    Aprovações
                 </a>
                 <a href="{% url 'client_portal:published' %}"
                    class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full flex-shrink-0 transition-colors {% if request.resolver_match.url_name == 'published' %}text-white{% else %}hover:bg-black/[0.04]{% endif %}"
                    {% if request.resolver_match.url_name == 'published' %}style="background: var(--primary);"{% else %}style="color: var(--text-secondary);"{% endif %}>
-                    Published
+                    Publicadas
                 </a>
                 <a href="{% url 'client_portal:activity' %}"
                    class="px-3 py-1.5 text-[0.8125rem] font-medium rounded-full flex-shrink-0 transition-colors {% if request.resolver_match.url_name == 'activity' %}text-white{% else %}hover:bg-black/[0.04]{% endif %}"
                    {% if request.resolver_match.url_name == 'activity' %}style="background: var(--primary);"{% else %}style="color: var(--text-secondary);"{% endif %}>
-                    Activity
+                    Atividade
                 </a>
             </nav>
         </div>

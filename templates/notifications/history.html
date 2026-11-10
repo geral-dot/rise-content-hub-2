@@ -9,7 +9,7 @@
     {# Page header #}
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-            <h2 class="text-xl font-semibold text-stone-900 tracking-tight">Notifications</h2>
+            <h2 class="text-xl font-semibold text-stone-900 tracking-tight">Notificações</h2>
             <p class="text-sm text-stone-500 mt-1">{{ total }} notification{{ total|pluralize }} total</p>
         </div>
         <div class="flex items-center gap-2">
@@ -43,7 +43,7 @@
             class="flex items-center gap-3 flex-wrap"
         >
             <div class="flex items-center gap-2">
-                <label for="filter-event-type" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Type</label>
+                <label for="filter-event-type" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Tipo</label>
                 <select
                     name="event_type"
                     id="filter-event-type"
@@ -55,14 +55,14 @@
                     hx-include="[name='read_status']"
                     hx-push-url="true"
                 >
-                    <option value="">All types</option>
+                    <option value="">Todos os tipos</option>
                     {% for value, label in event_types %}
                     <option value="{{ value }}" {% if value == selected_event_type %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="flex items-center gap-2">
-                <label for="filter-read-status" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Status</label>
+                <label for="filter-read-status" class="text-xs font-semibold text-stone-500 uppercase tracking-wider">Estado</label>
                 <select
                     name="read_status"
                     id="filter-read-status"
@@ -74,9 +74,9 @@
                     hx-include="[name='event_type']"
                     hx-push-url="true"
                 >
-                    <option value="" {% if not selected_read_status %}selected{% endif %}>All</option>
-                    <option value="unread" {% if selected_read_status == "unread" %}selected{% endif %}>Unread</option>
-                    <option value="read" {% if selected_read_status == "read" %}selected{% endif %}>Read</option>
+                    <option value="" {% if not selected_read_status %}selected{% endif %}>Todas</option>
+                    <option value="unread" {% if selected_read_status == "unread" %}selected{% endif %}>Não lidas</option>
+                    <option value="read" {% if selected_read_status == "read" %}selected{% endif %}>Lidas</option>
                 </select>
             </div>
             {% if selected_event_type or selected_read_status %}

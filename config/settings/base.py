@@ -21,6 +21,8 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 APP_URL = env("APP_URL")
+RISE_AGENCY_HOME_ENABLED = env.bool("RISE_AGENCY_HOME_ENABLED", default=False)
+RISE_BRANDED = env.bool("RISE_BRANDED", default=False)
 
 # Application definition
 
@@ -65,6 +67,7 @@ LOCAL_APPS = [
     "apps.inbox",
     "apps.approvals",
     "apps.client_portal",
+    "django_rise_agency.apps.RiseAgencyConfig",  # RISE_APP_REGISTERED
     "apps.onboarding",
     # Always installed (migrations consistent across deployments). URLs +
     # templates short-circuit when ``settings.INTELLIGENCE_ENABLED`` is False,
@@ -114,6 +117,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "apps.notifications.context_processors.unread_notification_count",
                 "apps.common.context_processors.sidebar_context",
+                "django_rise_agency.context_processors.rise_experience",
                 "apps.onboarding.context_processors.onboarding_checklist",
                 "apps.intelligence.context_processors.intelligence_flag",
             ],
@@ -193,7 +197,7 @@ PASSWORD_HASHERS = [
 ]
 
 # Internationalization
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = env("RISE_LANGUAGE_CODE", default="en-us")
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True

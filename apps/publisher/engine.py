@@ -575,6 +575,19 @@ class PublishEngine:
         """
         start_time = time.monotonic()
         account = platform_post.social_account
+        # RISE_GUARD_DISPATCH: last check before attempting external API.
+        from django_rise_agency.services import require_rise_publishable
+
+        try:
+            require_rise_publishable(platform_post)
+        except ValueError as exc:
+            self._fail_permanently(
+                platform_post,
+                str(exc),
+                user_message="RISE: publicação bloqueada até nova aprovação de texto e imagem.",
+                reason="rise-approval-gate",
+            )
+            return {"success": False, "error": "RISE: aprovação pendente"}
 
         # Check rate limits
         rate_state = RateLimitState.objects.filter(

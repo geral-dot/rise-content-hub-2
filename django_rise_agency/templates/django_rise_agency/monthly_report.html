@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}KPIs e relatório · {{ workspace.name }} · RISE Content Hub{% endblock %}
+{% block content %}
+<div class="rise-report-page">
+  <nav class="rise-hub-breadcrumb" aria-label="Navegação">
+    <a href="{% url 'rise_agency:dashboard' %}">Visão geral</a><span>›</span>
+    <a href="{% url 'rise_agency:client_center' client_id=workspace.id %}?period={{ period }}">{{ workspace.name }}</a><span>›</span>
+    <strong>KPIs e relatórios</strong>
+  </nav>
+  <header class="rise-report-hero">
+    <div><p class="rise-eyebrow">RISE / INTELIGÊNCIA DE MARKETING</p><h1>KPIs e relatório</h1>
+      <p>Indicadores, análise estratégica e próximos passos de <strong>{{ workspace.name }}</strong>.</p>
+    </div>
+    {% if report %}<a class="rise-report-download" href="{% url 'rise_agency:report_pdf' client_id=workspace.id %}?period={{ period }}">Descarregar PDF ↗</a>{% endif %}
+  </header>
+  <form class="rise-report-month" method="get">
+    <label for="rise-report-period">Mês de referência</label>
+    <input type="month" id="rise-report-period" name="period" value="{{ period }}" min="2000-01" max="2099-12" required>
+    <button type="submit">Consultar</button>
+  </form>
+  {% if not report %}
+  <div class="rise-report-note"><strong>Relatório ainda não criado para {{ period }}.</strong>
+  Os indicadores não serão inventados. Regista os dados reais e a respetiva fonte antes de exportar.</div>
+  {% endif %}
+  <form method="post" action="{% url 'rise_agency:report_save' client_id=workspace.id %}">
+    {% csrf_token %}<input type="hidden" name="period" value="{{ period }}">
+    {% if form.non_field_errors %}<div class="rise-report-error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+    <section class="rise-report-panel" aria-labelledby="rise-kpi-heading">
+      <div class="rise-report-panel-head">
+        <div><span class="rise-eyebrow">01 / INDICADORES</span><h2 id="rise-kpi-heading">Desempenho mensal</h2></div>
+        <span class="rise-report-chip">Valores registados manualmente</span>
+      </div>
+      <div class="rise-report-fields">
+      {% for field in form %}
+      {% if field.name == "followers" or field.name == "reach" or field.name == "impressions" or field.name == "interactions" or field.name == "link_clicks" or field.name == "leads" or field.name == "conversions" or field.name == "ad_spend" %}
+        <div class="rise-report-field"><label for="{{ field.id_for_label }}">
+          {% if field.name == "followers" %}Seguidores
+          {% elif field.name == "reach" %}Alcance
+          {% elif field.name == "impressions" %}Impressões
+          {% elif field.name == "interactions" %}Interações
+          {% elif field.name == "link_clicks" %}Cliques em links
+          {% elif field.name == "leads" %}Leads
+          {% elif field.name == "conversions" %}Conversões
+          {% else %}Investimento publicitário (€){% endif %}
+        </label>{{ field }}{{ field.errors }}</div>
+      {% endif %}
+      {% endfor %}
+      </div>
+      <div class="rise-report-field wide"><label for="{{ form.data_source.id_for_label }}">Fonte e período dos indicadores</label>
+        {{ form.data_source }}{{ form.data_source.errors }}
+        <p class="rise-report-helper">Obrigatória quando existem KPIs. Ex.: GA4, Meta Business Suite, LinkedIn Analytics, recolha de 01 a 30/11.</p>
+      </div>
+    </section>
+    <section class="rise-report-panel" aria-labelledby="rise-report-copy">
+      <div class="rise-report-panel-head"><div><span class="rise-eyebrow">02 / INTERPRETAÇÃO</span><h2 id="rise-report-copy">Análise e recomendações</h2></div></div>
+      <div class="rise-report-field wide"><label for="{{ form.summary.id_for_label }}">Síntese de resultados</label>{{ form.summary }}{{ form.summary.errors }}</div>
+      <div class="rise-report-field wide"><label for="{{ form.conclusions.id_for_label }}">Conclusões estratégicas</label>{{ form.conclusions }}{{ form.conclusions.errors }}</div>
+      <div class="rise-report-field wide"><label for="{{ form.next_steps.id_for_label }}">Próximos passos e ações recomendadas</label>{{ form.next_steps }}{{ form.next_steps.errors }}</div>
+    </section>
+    <section class="rise-report-panel" aria-labelledby="rise-report-editorial">
+      <div class="rise-report-panel-head"><div><span class="rise-eyebrow">03 / PRODUÇÃO</span><h2 id="rise-report-editorial">Cumprimento editorial</h2></div></div>
+      <div class="rise-report-summary-grid">
+        <div><span>Posts classificados</span><strong>{{ counts.posts }}{% if retainer %} / {{ retainer.posts_included }}{% endif %}</strong></div>
+        <div><span>Stories classificadas</span><strong>{{ counts.stories }}{% if retainer %} / {{ retainer.stories_included }}{% endif %}</strong></div>
+        <div><span>Posts com publicação confirmada</span><strong>{{ counts.posts_published }}</strong></div>
+        <div><span>Stories com publicação confirmada</span><strong>{{ counts.stories_published }}</strong></div>
+      </div>
+      <p class="rise-report-helper">Um conteúdo conta uma vez, mesmo quando tem várias redes sociais associadas. Publicação confirmada = pelo menos um canal publicado.</p>
+    </section>
+    <div class="rise-report-actions">
+      <span>Os dados são guardados por cliente e mês, sem exposição a outros clientes.</span>
+      {% if can_edit %}<button type="submit">Guardar KPIs e relatório</button>{% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

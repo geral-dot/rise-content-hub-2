@@ -98,7 +98,7 @@ def test_disabled_platform_account_stays_listed_with_a_reason(owner_client, work
     body = response.content.decode()
     assert 'id="analytics-disabled-admin-note"' in body
     # The switcher marks it rather than listing it indistinguishably.
-    assert "No data" in body
+    assert "Sem dados" in body
 
 
 @pytest.mark.django_db

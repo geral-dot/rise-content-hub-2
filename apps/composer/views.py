@@ -1014,6 +1014,19 @@ def save_post(request, workspace_id, post_id=None):
     post.workspace = workspace
     if not post_id:
         post.author = request.user
+    # RISE_GUARD_COMPOSER: pending approvals never enter scheduled queues.
+    if action in {"schedule", "publish_now", "add_to_queue", "add_to_queue_priority"}:
+        from django_rise_agency.services import require_rise_post_approved, rise_dual_approval_enabled
+
+        if rise_dual_approval_enabled(workspace.id):
+            if not post_id:
+                return JsonResponse(
+                    {"errors": {"approval": "RISE: guarde como rascunho e solicite aprovação"}}, status=409
+                )
+            try:
+                require_rise_post_approved(post)
+            except ValueError as exc:
+                return JsonResponse({"errors": {"approval": str(exc)}}, status=409)
 
     pinterest_board_error = _validate_pinterest_board_selection(request, post, workspace)
     if pinterest_board_error is not None:
@@ -1331,6 +1344,9 @@ def transition_platform_post(request, workspace_id, post_id, platform_post_id):
         # otherwise be "retried" into the same failure.
         try:
             require_publishable(pp)
+            from django_rise_agency.services import require_rise_publishable
+
+            require_rise_publishable(pp)  # RISE_GUARD_ACCOUNT_SCHEDULE
         except ValueError as exc:
             return JsonResponse({"error": str(exc)}, status=400)
 
@@ -3654,6 +3670,13 @@ def csv_confirm_import(request, workspace_id):
                     naive_dt = datetime.combine(d, t)
                     post.scheduled_at = naive_dt.replace(tzinfo=tz)
                     initial_pp_status = "scheduled"
+                    # RISE_GUARD_CSV: imports never bypass client approval.
+                    from django_rise_agency.services import rise_dual_approval_enabled
+
+                    if rise_dual_approval_enabled(workspace.id):
+                        post.proposed_publish_at = post.scheduled_at
+                        post.scheduled_at = None
+                        initial_pp_status = "draft"
 
             # First comment
             if "first_comment" in mapping and mapping["first_comment"] < len(row):

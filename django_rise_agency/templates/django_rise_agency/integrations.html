@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Integrações · RISE Content Hub{% endblock %}
+{% block content %}
+<div class="rise-tools-page">
+  <nav class="rise-hub-breadcrumb"><a href="{% url 'rise_agency:dashboard' %}">Visão geral</a><span>›</span><strong>Integrações</strong></nav>
+  <header class="rise-tools-heading"><p class="rise-eyebrow">RISE / CONFIGURAÇÃO CENTRAL</p><h1>Integrações</h1>
+    <p>Gere as ligações externas utilizadas pelas marcas da agência. Uma aplicação configurada não significa que uma conta de cliente já esteja autorizada.</p>
+  </header>
+  <section class="rise-tools-section" aria-labelledby="rise-social-heading">
+    <div class="rise-tools-section-head"><span class="rise-eyebrow">01 / REDES SOCIAIS</span><h2 id="rise-social-heading">Ligações Meta e LinkedIn</h2></div>
+    <p class="rise-tools-muted">Cada rede precisa de uma aplicação registada no fornecedor, dos endereços de retorno autorizados e da autorização OAuth de cada cliente.</p>
+    <div class="rise-tools-network-list">
+      {% for network in networks %}
+      <div class="rise-tools-network">
+        <div><strong>{{ network.label }}</strong>
+          {% if network.configured %}<span class="rise-tools-ready">Aplicação configurada</span>
+          {% else %}<span class="rise-tools-missing">Aplicação por configurar</span>{% endif %}
+          <small>{{ network.connected }} conta(s) com ligação ativa nesta organização</small>
+        </div>
+        <div class="rise-tools-callback"><label>URL de retorno autorizado</label>
+          <code>{{ network.callback_url }}</code>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <p class="rise-tools-muted">A ligação da conta social é feita no espaço de trabalho do cliente, em <strong>Contas sociais</strong>, após configurar a aplicação. Os estados acima são consultados na configuração real da organização, sem expor chaves.</p>
+    {% if request.user.is_superuser %}
+    <a class="rise-tools-link" href="/admin/credentials/platformcredential/">Configurar aplicações Meta e LinkedIn na administração ↗</a>
+    {% else %}
+    <p class="rise-tools-muted">Pede ao administrador principal para configurar o App ID e o App Secret no painel de administração, de forma segura.</p>
+    {% endif %}
+  </section>
+  <section class="rise-tools-section" aria-labelledby="rise-mailchimp-heading">
+    <div class="rise-tools-section-head"><span class="rise-eyebrow">02 / EMAIL MARKETING</span><h2 id="rise-mailchimp-heading">Mailchimp</h2></div>
+    {% if mailchimp_ready %}
+      <span class="rise-tools-ready">Credencial presente</span>
+      <p class="rise-tools-muted">A ligação pode ser testada consultando os públicos. Esta fase é apenas de leitura: não envia campanhas nem altera contactos.</p>
+      <a class="rise-tools-link" href="{% url 'rise_agency:mailchimp_read' %}">Testar ligação e ver públicos ↗</a>
+    {% else %}
+      <span class="rise-tools-missing">Credencial por configurar</span>
+      <p class="rise-tools-muted">Introduz a chave de API Mailchimp e o centro de dados associado à conta para recuperarmos o acesso aos públicos.</p>
+    {% endif %}
+    <form class="rise-tools-secret-form" method="post" action="{% url 'rise_agency:save_integration' %}">
+      {% csrf_token %}<input type="hidden" name="provider" value="mailchimp">
+      <label>Chave de API Mailchimp (não fica visível após guardar)
+        <input type="password" name="secret" autocomplete="new-password" placeholder="Chave de API do Mailchimp">
+      </label>
+      <label>Centro de dados <span>(ex.: us21)</span>
+        <input type="text" name="data_center" value="{{ mailchimp_dc }}" pattern="[a-z]{2}[0-9]{1,3}" placeholder="us21">
+      </label>
+      <button type="submit">Guardar configuração cifrada</button>
+    </form>
+    <form method="post" action="{% url 'rise_agency:disconnect_service' %}">
+      {% csrf_token %}<input type="hidden" name="provider" value="mailchimp">
+      <button type="submit" class="rise-tools-danger">Eliminar chave guardada na aplicação</button>
+    </form>
+  </section>
+  <section class="rise-tools-section" aria-labelledby="rise-ai-heading">
+    <div class="rise-tools-section-head"><span class="rise-eyebrow">03 / ASSISTENTE EDITORIAL</span><h2 id="rise-ai-heading">OpenAI</h2></div>
+    {% if openai_ready %}<span class="rise-tools-ready">Credencial presente</span>
+    <p class="rise-tools-muted">As equipas podem gerar rascunhos de texto dentro da ficha do cliente; o resultado exige revisão e nunca é publicado automaticamente.</p>
+    {% else %}<span class="rise-tools-missing">Credencial por configurar</span>
+    <p class="rise-tools-muted">Para gerar conteúdos com IA é necessária uma chave de API própria da RISE. Esta credencial não é a palavra-passe do ChatGPT.</p>{% endif %}
+    <form class="rise-tools-secret-form" method="post" action="{% url 'rise_agency:save_integration' %}">
+      {% csrf_token %}<input type="hidden" name="provider" value="openai">
+      <label>Chave de API OpenAI
+        <input type="password" name="secret" autocomplete="new-password" placeholder="sk-...">
+      </label>
+      <button type="submit">Guardar configuração cifrada</button>
+    </form>
+    <form method="post" action="{% url 'rise_agency:disconnect_service' %}">
+      {% csrf_token %}<input type="hidden" name="provider" value="openai">
+      <button type="submit" class="rise-tools-danger">Eliminar chave guardada na aplicação</button>
+    </form>
+  </section>
+  <p class="rise-tools-footnote">Segurança: os segredos não são devolvidos a estas páginas, são cifrados na base de dados. Variáveis de ambiente existentes no Railway têm prioridade e têm de ser geridas no Railway.</p>
+</div>
+{% endblock %}

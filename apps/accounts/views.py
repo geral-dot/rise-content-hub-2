@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -18,6 +19,8 @@ def dashboard(request):
     from apps.members.models import WorkspaceMembership
 
     user = request.user
+    if getattr(settings, "RISE_AGENCY_HOME_ENABLED", False) and getattr(request, "org", None):
+        return redirect("rise_agency:dashboard")
 
     # Only trust last_workspace_id if the user still has an active membership
     # in that workspace. Otherwise the org may have been deleted out from under

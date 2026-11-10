@@ -1,16 +1,17 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" style="{% block html_style %}{% endblock %}">
+<html lang="pt-PT" style="{% block html_style %}{% endblock %}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Brightbean{% endblock %}</title>
-    <link rel="icon" href="{% static 'favicon/favicon.ico' %}" sizes="any">
-    <link rel="icon" type="image/svg+xml" href="{% static 'favicon/favicon.svg' %}">
-    <link rel="icon" type="image/png" sizes="96x96" href="{% static 'favicon/favicon-96x96.png' %}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}">
-    <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
+    <title>{% block title %}RISE Content Hub{% endblock %}</title>
+    
+    <link rel="icon" type="image/svg+xml" href="{% static 'django_rise_agency/rise-favicon.svg' %}">
+    
+    
+    
     <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'django_rise_agency/agency.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
     <script nonce="{{ request.csp_nonce }}">
         // Set sidebar state class on <html> before first paint to prevent flash
@@ -284,7 +285,7 @@
              class="fixed inset-0 bg-black/30 z-30 lg:hidden"></div>
 
         <!-- Sidebar -->
-        <aside class="flex flex-col flex-shrink-0 sidebar-initial
+        <aside class="rise-app-sidebar flex flex-col flex-shrink-0 sidebar-initial
                       fixed inset-y-0 left-0 z-40 w-60 bg-white
                       transition-transform duration-200
                       lg:relative lg:z-auto lg:translate-x-0 lg:bg-transparent"
@@ -294,6 +295,12 @@
                ]"
                x-init="$el.classList.remove('sidebar-initial'); document.documentElement.classList.remove('sidebar-is-collapsed'); $nextTick(() => $el.classList.add('transition-all', 'duration-200'))"
                @click="if (window.innerWidth < 1024 && $event.target.closest('a')) { mobileMenuOpen = false }">
+
+            <!-- RISE agency identity -->
+            <a href="{% url 'rise_agency:dashboard' %}" class="rise-sidebar-brand" aria-label="RISE Content Hub — visão geral">
+                <span class="rise-sidebar-symbol">R</span>
+                <span class="rise-sidebar-name">RISE <small>CONTENT HUB</small></span>
+            </a>
 
             <!-- Workspace switcher (top of sidebar) -->
             <div class="relative border-b border-stone-100" x-data="{ wsOpen: false }">
@@ -316,8 +323,8 @@
                     {% endif %}
                     <span class="flex-1 font-bold text-[0.9375rem] tracking-tight text-stone-900 truncate" x-show="!sidebarCollapsed" x-cloak>{{ sidebar_workspaces.0.name }}</span>
                     {% else %}
-                    <div class="sidebar-logo-mark flex-shrink-0">P</div>
-                    <span class="flex-1 font-bold text-[0.9375rem] tracking-tight text-stone-900 truncate" x-show="!sidebarCollapsed" x-cloak>Brightbean</span>
+                    <div class="sidebar-logo-mark flex-shrink-0">R</div>
+                    <span class="flex-1 font-bold text-[0.9375rem] tracking-tight text-stone-900 truncate" x-show="!sidebarCollapsed" x-cloak>RISE Content Hub</span>
                     {% endif %}
                     {% endwith %}
                     <svg class="w-4 h-4 text-stone-400 flex-shrink-0 transition-transform" :class="wsOpen && 'rotate-180'" x-show="!sidebarCollapsed" x-cloak fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -349,7 +356,7 @@
                         {% endif %}
                     </a>
                     {% empty %}
-                    <p class="px-3 py-2 text-sm text-stone-400">No workspaces</p>
+                    <p class="px-3 py-2 text-sm text-stone-400">Sem espaços de trabalho</p>
                     {% endfor %}
                     {% if can_create_workspace %}
                     <div class="border-t border-stone-100 mt-1 pt-1">
@@ -358,7 +365,7 @@
                             <div class="w-7 h-7 rounded-md flex items-center justify-center border border-dashed border-stone-300 flex-shrink-0">
                                 <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
                             </div>
-                            <span>Create workspace</span>
+                            <span>Criar espaço de trabalho</span>
                         </button>
                     </div>
                     {% endif %}
@@ -369,7 +376,7 @@
                             <div class="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0">
                                 <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.32 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
                             </div>
-                            <span>Workspace settings</span>
+                            <span>Definições do espaço</span>
                         </a>
                     </div>
                     {% endif %}
@@ -386,7 +393,7 @@
                             class="btn-brand w-full flex items-center justify-center gap-1.5 text-sm py-2 cursor-pointer"
                             :style="sidebarCollapsed ? 'padding-left:1.15rem;padding-right:1.15rem' : ''">
                         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        <span class="sidebar-new-label" x-show="!sidebarCollapsed">New</span>
+                        <span class="sidebar-new-label" x-show="!sidebarCollapsed">Novo</span>
                     </button>
 
                     <!-- Dropdown -->
@@ -404,8 +411,8 @@
                                 <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                             </div>
                             <div>
-                                <div class="text-sm font-semibold text-stone-800">Post</div>
-                                <div class="text-xs text-stone-500">Publish content to a channel</div>
+                                <div class="text-sm font-semibold text-stone-800">Publicação</div>
+                                <div class="text-xs text-stone-500">Criar conteúdo para redes sociais</div>
                             </div>
                         </a>
                         <button type="button" @click="openCreateModal()"
@@ -414,8 +421,8 @@
                                 <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                             </div>
                             <div class="text-left">
-                                <div class="text-sm font-semibold text-stone-800">Idea</div>
-                                <div class="text-xs text-stone-500">Capture a content idea</div>
+                                <div class="text-sm font-semibold text-stone-800">Ideia</div>
+                                <div class="text-xs text-stone-500">Registar uma ideia editorial</div>
                             </div>
                         </button>
                     </div>
@@ -443,7 +450,7 @@
 
                                 <!-- Header -->
                                 <div class="idea-modal-header">
-                                    <h2 class="text-lg font-semibold" style="color: var(--text-primary);">Create Idea</h2>
+                                    <h2 class="text-lg font-semibold" style="color: var(--text-primary);">Criar ideia</h2>
                                     <div class="flex items-center gap-2">
                                         <!-- Column selector dropdown -->
                                         <div class="relative" @click.away="createGroupDropdownOpen = false">
@@ -640,32 +647,81 @@
             <!-- Navigation -->
             <nav class="sidebar-nav flex-1 overflow-y-auto py-2 px-3" :class="sidebarCollapsed ? 'px-2' : 'px-3'">
                 {% block sidebar_nav %}
+                {% if request.org %}
+                <a href="{% url 'rise_agency:dashboard' %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.app_name == 'rise_agency' and request.resolver_match.url_name == 'dashboard' %}active{% endif %}" title="Visão geral da agência">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                    <span class="sidebar-nav-label">Visão geral</span>
+                </a>
+                <a href="{% url 'rise_agency:dashboard' %}#rise-clients-title" class="mb-1 sidebar-nav-item {% if request.resolver_match.app_name == 'organizations' and request.resolver_match.url_name == 'workspaces' %}active{% endif %}" title="Gestão de clientes">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M7 9h3M7 13h3M14 9h3M14 13h3M7 17h10"/></svg>
+                    <span class="sidebar-nav-label">Clientes</span>
+                </a>
+                {% if request.org_membership.org_role == 'owner' or request.org_membership.org_role == 'admin' %}
+                <a href="{% url 'rise_agency:integrations' %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'integrations' %}active{% endif %}" title="Redes sociais, Mailchimp e inteligência artificial">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6M15 3v6M5 9h14M7 9v6a5 5 0 0010 0V9M12 20v2"/></svg>
+                    <span class="sidebar-nav-label">Integrações</span>
+                </a>
+                {% endif %}
+                <a href="{% url 'organizations:cross_workspace_calendar' %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.app_name == 'organizations' and request.resolver_match.url_name == 'cross_workspace_calendar' %}active{% endif %}" title="Calendário global">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4M8 15h4"/></svg>
+                    <span class="sidebar-nav-label">Calendário global</span>
+                </a>
+                {% if request.workspace and request.workspace_membership and request.workspace_membership.effective_permissions.create_posts %}
+                <a href="{% url 'rise_agency:client_center' client_id=request.workspace.id %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'client_center' %}active{% endif %}" title="Ficha de cliente RISE">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M7 9h10M7 13h7M7 17h10"/></svg>
+                    <span class="sidebar-nav-label">Ficha do cliente</span>
+                </a>
+                <a href="{% url 'rise_agency:report_detail' client_id=request.workspace.id %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'report_detail' %}active{% endif %}" title="Indicadores e relatórios em PDF">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3h13l3 3v15H4z"/><path d="M8 11h8M8 15h8M8 7h4"/></svg>
+                    <span class="sidebar-nav-label">KPIs e relatórios</span>
+                </a>
+                <a href="{% url 'rise_agency:ai_editor' client_id=request.workspace.id %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'ai_editor' %}active{% endif %}" title="Gerador de conteúdos IA">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/></svg>
+                    <span class="sidebar-nav-label">Criar com IA</span>
+                </a>
+                {% endif %}
+                <div class="sidebar-section-label">Espaço de trabalho</div>
+                {% if request.workspace and request.org_membership.org_role == 'owner' or request.workspace and request.org_membership.org_role == 'admin' %}
+                <a href="{% url 'rise_agency:client_settings' client_id=request.workspace.id %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'client_settings' %}active{% endif %}" title="Avença e orientações da marca">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 8h10M7 12h7M7 16h5"/></svg>
+                    <span class="sidebar-nav-label">Avença e identidade</span>
+                </a>
+                {% endif %}
+                {% endif %}
                 {% if request.workspace %}
                 <a href="{% url 'calendar:calendar' workspace_id=request.workspace.id %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'calendar' %}active{% endif %}">
                     <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <span class="sidebar-nav-label">Publish</span>
+                    <span class="sidebar-nav-label">Publicações</span>
                 </a>
+                {% if request.workspace.rise_profile.enforce_dual_approval and request.workspace_membership.effective_permissions.approve_posts %}
+                <a href="{% url 'rise_agency:approvals' workspace_id=request.workspace.id %}"
+                   class="mb-1 sidebar-nav-item {% if request.resolver_match.app_name == 'rise_agency' and request.resolver_match.url_name == 'approvals' %}active{% endif %}" title="Aprovação de texto e imagem">
+                    <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                    <span class="sidebar-nav-label">Aprovações RISE</span>
+                </a>
+                {% endif %}
+
                 <a href="{% url 'composer:create_landing' workspace_id=request.workspace.id %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'create_landing' or request.resolver_match.url_name == 'compose' %}active{% endif %}">
                     <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 00-4 12.73V16a1 1 0 001 1h6a1 1 0 001-1v-1.27A7 7 0 0012 2z"/><path d="M9 18h6"/><path d="M10 22h4"/><path d="M10 8.5c0 1.5 2 2.5 2 4"/><path d="M14 8.5c0 1.5-2 2.5-2 4"/></svg>
-                    <span class="sidebar-nav-label">Create Idea</span>
+                    <span class="sidebar-nav-label">Ideias</span>
                 </a>                
                 <a href="{% url 'inbox:feed' workspace_id=request.workspace.id %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.app_name == 'inbox' %}active{% endif %}">
                     <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                    <span class="sidebar-nav-label">Social Inbox</span>
+                    <span class="sidebar-nav-label">Mensagens</span>
                     {% if sidebar_unread_inbox_count %}<span class="sidebar-badge">{{ sidebar_unread_inbox_count }}</span>{% endif %}
                 </a>
                 {% endif %}
 
                 <a href="{% url 'notifications:list' %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.url_name == 'list' and request.resolver_match.app_name == 'notifications' %}active{% endif %}">
                     <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-                    <span class="sidebar-nav-label">Notifications</span>
+                    <span class="sidebar-nav-label">Notificações</span>
                 </a>
 
                 {% if request.workspace %}
                 {% if analytics_enabled_platforms %}
                 <a href="{% url 'analytics:index' workspace_id=request.workspace.id %}" class="mb-1 sidebar-nav-item {% if request.resolver_match.app_name == 'analytics' %}active{% endif %}">
                     <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 12l4-4 4 4 6-6"/></svg>
-                    <span class="sidebar-nav-label">Analytics</span>
+                    <span class="sidebar-nav-label">Resultados</span>
                 </a>
                 {% endif %}
                 {% endif %}
@@ -682,7 +738,7 @@
                 <a href="{% url 'intelligence:playground' org_id=request.org.id %}"
                    class="mb-1 sidebar-nav-item {% if request.resolver_match.app_name == 'intelligence' %}active{% endif %}">
                     <svg class="flex-shrink-0" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="16.24 7.76 13.41 13.41 7.76 16.24 10.59 10.59 16.24 7.76"/></svg>
-                    <span class="sidebar-nav-label">Intelligence</span>
+                    <span class="sidebar-nav-label">Inteligência</span>
                 </a>
                 {% endif %}
 
@@ -690,10 +746,10 @@
                 {% if sidebar_channels or sidebar_unhealthy_channels %}
                 <!-- Channels -->
                 <div class="group flex items-center justify-between mt-3.5 sidebar-section-label-wrap">
-                    <div class="sidebar-section-label" style="padding-top:0">Channels</div>
+                    <div class="sidebar-section-label" style="padding-top:0">Canais ligados</div>
                     <a href="{% url 'social_accounts:connect' workspace_id=request.workspace.id %}"
                        class="opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded text-stone-400 hover:text-stone-600 transition-all mr-2 sidebar-nav-label"
-                       title="Connect a channel">
+                       title="Ligar canal">
                         <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     </a>
                 </div>
@@ -741,7 +797,7 @@
                     {% else %}<span class="sidebar-nav-label truncate flex-1 text-stone-400 opacity-60">{{ channel.account_name|default:channel.account_handle }}</span>{% endif %}
                     <form method="post" action="{% url 'social_accounts:reconnect' workspace_id=request.workspace.id account_id=channel.id %}" class="sidebar-nav-label">
                         {% csrf_token %}
-                        <button type="submit" class="inline-flex items-center px-2 py-0.5 text-[11px] font-semibold text-orange-700 bg-orange-50 rounded-full hover:bg-orange-100 transition-colors cursor-pointer" title="Reconnect {{ channel.account_name|default:channel.account_handle }}">
+                        <button type="submit" class="inline-flex items-center px-2 py-0.5 text-[11px] font-semibold text-orange-700 bg-orange-50 rounded-full hover:bg-orange-100 transition-colors cursor-pointer" title="Voltar a ligar {{ channel.account_name|default:channel.account_handle }}">
                             Reconnect
                         </button>
                     </form>
@@ -751,7 +807,7 @@
                 <!-- Connect channels (hidden when collapsed) -->
                 {% if sidebar_connectable_platforms %}
                 <div class="sidebar-connect-channels" x-show="!sidebarCollapsed">
-                <div class="sidebar-section-label">Connect channels</div>
+                <div class="sidebar-section-label">Ligar redes sociais</div>
                 {% for platform_key, platform_label in sidebar_connectable_platforms|slice:":3" %}
                 <a href="{% url 'social_accounts:connect' workspace_id=request.workspace.id %}" class="sidebar-nav-item">
                     <div class="relative flex-shrink-0">
@@ -774,7 +830,7 @@
                     <div class="w-4 h-4 flex items-center justify-center flex-shrink-0 rounded-lg bg-stone-100">
                         <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     </div>
-                    <span class="sidebar-nav-label">More channels</span>
+                    <span class="sidebar-nav-label">Outros canais</span>
                 </a>
                 </div>
                 {% endif %}
@@ -782,7 +838,7 @@
                 {% endblock %}
             </nav>
 
-            {% if show_review_banner %}
+            {% if show_review_banner and not RISE_BRANDED %}
             {% include "partials/_review_banner.html" %}
             {% endif %}
 
@@ -801,13 +857,13 @@
                         </div>
                         {% endif %}
                         <div class="flex-1 min-w-0 text-left">
-                            <p class="text-sm font-semibold text-stone-800 truncate">{{ request.org.name|default:"My Organization" }}</p>
+                            <p class="text-sm font-semibold text-stone-800 truncate">{{ request.org.name|default:"RISE PDF" }}</p>
                             <p class="text-[11px] text-stone-400 truncate">{% if user.name %}{{ user.name }}{% else %}{{ user.email }}{% endif %}</p>
                         </div>
                     </button>
                     <button @click="sidebarCollapsed = true"
                             class="hidden lg:flex w-7 h-7 items-center justify-center rounded-md text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors cursor-pointer flex-shrink-0"
-                            title="Collapse sidebar">
+                            title="Recolher menu">
                         <svg viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3V21M16 15L13 12L16 9M5 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3Z"/></svg>
                     </button>
                 </div>
@@ -815,7 +871,7 @@
                 <div class="sidebar-org-collapsed flex flex-col items-center gap-2" x-show="sidebarCollapsed" x-cloak style="display:none">
                     <button @click="sidebarCollapsed = false"
                             class="w-7 h-7 flex items-center justify-center rounded-md text-stone-400 hover:text-stone-600 hover:bg-stone-100 transition-colors cursor-pointer"
-                            title="Expand sidebar">
+                            title="Expandir menu">
                         <svg viewBox="0 0 24 24" fill="none" width="16" height="16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="scale-x-[-1]"><path d="M9 3V21M16 15L13 12L16 9M5 3H19C20.1046 3 21 3.89543 21 5V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3Z"/></svg>
                     </button>
                     <button @click="orgMenuOpen = !orgMenuOpen"
@@ -841,7 +897,7 @@
                     <!-- User info -->
                     <div class="px-4 pt-4 pb-3">
                         <p class="text-sm text-stone-500 truncate">{{ user.email }}</p>
-                        <p class="text-sm font-semibold text-stone-900 mt-1">{{ request.org.name|default:"My Organization" }}</p>
+                        <p class="text-sm font-semibold text-stone-900 mt-1">{{ request.org.name|default:"RISE PDF" }}</p>
                     </div>
 
                     <!-- Manage Team button -->
@@ -880,7 +936,7 @@
             <div class="flex lg:hidden items-center justify-between px-4 py-3 border-b border-stone-200 bg-white flex-shrink-0">
                 <button @click="mobileMenuOpen = !mobileMenuOpen"
                         class="w-9 h-9 flex items-center justify-center rounded-lg text-stone-600 hover:bg-stone-100 transition-colors cursor-pointer -ml-1"
-                        title="Toggle menu">
+                        title="Abrir ou fechar menu">
                     <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="3" y1="6" x2="21" y2="6"/>
                         <line x1="3" y1="12" x2="21" y2="12"/>
@@ -898,14 +954,14 @@
                     <span class="text-sm font-semibold text-stone-800 truncate max-w-[160px]">{{ current_ws.name }}</span>
                     {% else %}
                     <div class="w-7 h-7 rounded-md flex items-center justify-center text-white text-[11px] font-bold" style="background: var(--primary);">P</div>
-                    <span class="text-sm font-semibold text-stone-800">Brightbean</span>
+                    <span class="text-sm font-semibold text-stone-800">RISE Content Hub</span>
                     {% endif %}
                     {% endwith %}
                 </div>
                 <div class="w-9"></div>
             </div>
             <!-- Main content -->
-            <main class="lg:border lg:border-stone-200 lg:m-2.5 bg-white lg:rounded-xl flex-1 p-3 sm:p-4 lg:p-6 overflow-y-auto flex flex-col">
+            <main class="rise-workspace-main lg:border lg:border-stone-200 lg:m-2.5 bg-white lg:rounded-xl flex-1 p-3 sm:p-4 lg:p-6 overflow-y-auto flex flex-col">
                 {% block page_header %}{% endblock %}
                 {% if messages %}
                 <div class="mb-4 space-y-2">

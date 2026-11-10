@@ -71,6 +71,7 @@ urlpatterns = [
     path("workspace/<uuid:workspace_id>/media/", include("apps.media_library.urls")),
     # Client Portal (Stream F)
     path("portal/", include("apps.client_portal.urls")),
+    path("rise/", include("django_rise_agency.urls")),  # RISE_URLS
     path("notifications/", include("apps.notifications.urls")),
     path("onboarding/", include("apps.onboarding.urls")),
     path("organizations/media/", include("apps.media_library.urls_org")),
