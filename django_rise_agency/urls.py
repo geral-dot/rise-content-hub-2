@@ -1,6 +1,14 @@
 from django.urls import path
 
-from . import client_center, client_settings, competitive_intelligence, dashboard, integrations, monthly_reporting, views
+from . import (
+    client_center,
+    client_settings,
+    competitive_intelligence,
+    dashboard,
+    integrations,
+    monthly_reporting,
+    views,
+)
 
 app_name = "rise_agency"
 urlpatterns = [
