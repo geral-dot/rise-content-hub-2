@@ -1,0 +1,36 @@
+name: RISE one-shot format
+on:
+  push:
+    branches:
+      - rise/estabilizacao-operacional-20261111
+    paths:
+      - ".github/workflows/rise-one-shot-format.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: rise/estabilizacao-operacional-20261111
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff==0.15.9
+      - name: Format only modified RISE code
+        run: |
+          ruff check --fix django_rise_agency/dashboard.py django_rise_agency/integrations.py django_rise_agency/monthly_reporting.py django_rise_agency/tests_competitors.py django_rise_agency/tests_dashboard.py django_rise_agency/tests_operations.py django_rise_agency/urls.py
+          ruff format django_rise_agency/dashboard.py django_rise_agency/integrations.py django_rise_agency/monthly_reporting.py django_rise_agency/tests_competitors.py django_rise_agency/tests_dashboard.py django_rise_agency/tests_operations.py django_rise_agency/urls.py
+      - name: Commit formatted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add django_rise_agency/
+          if ! git diff --cached --quiet; then
+            git commit -m "style(rise): apply ruff to operational modules"
+            git push origin HEAD:rise/estabilizacao-operacional-20261111
+          fi
