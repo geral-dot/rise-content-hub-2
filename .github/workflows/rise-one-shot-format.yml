@@ -1,8 +1,8 @@
 name: RISE one-shot format
 on:
-  push:
+  pull_request:
     branches:
-      - rise/estabilizacao-operacional-20261111
+      - rise/content-hub-v2
     paths:
       - ".github/workflows/rise-one-shot-format.yml"
 
