@@ -87,3 +87,38 @@ class AgencyDashboardTests(TestCase):
         self.assertEqual(data["clients"][0]["scheduled"], 1)
         self.assertEqual(data["summary"]["scheduled"], 1)
         self.assertEqual(data["summary"]["posts"], 1)
+
+    def test_daily_actions_are_limited_to_authorized_workspace(self):
+        from apps.composer.models import PlatformPost
+        from django.utils import timezone
+
+        one = Post.objects.filter(workspace=self.ours).first()
+        other = Post.objects.filter(workspace=self.unauthorized).first()
+        account_a = SocialAccount.objects.create(
+            workspace=self.ours, platform="facebook",
+            account_platform_id="daily-fb-1", account_name="Authorized",
+        )
+        account_b = SocialAccount.objects.create(
+            workspace=self.unauthorized, platform="facebook",
+            account_platform_id="daily-fb-2", account_name="Private",
+        )
+        one.scheduled_at = timezone.now()
+        one.save(update_fields=["scheduled_at"])
+        PlatformPost.objects.create(post=one, social_account=account_a, status="failed")
+        PlatformPost.objects.create(post=other, social_account=account_b, status="failed")
+        data = self.context(self.request())
+        self.assertEqual(len(data["daily_actions"]), 1)
+        self.assertEqual(data["daily_actions"][0]["post"].pk, one.pk)
+
+    def test_daily_actions_do_not_duplicate_post_across_channels(self):
+        from apps.composer.models import PlatformPost
+
+        post = Post.objects.filter(workspace=self.ours).first()
+        for platform, native_id in (("facebook", "daily-fb-3"), ("instagram", "daily-ig-3")):
+            account = SocialAccount.objects.create(
+                workspace=self.ours, platform=platform,
+                account_platform_id=native_id, account_name=platform,
+            )
+            PlatformPost.objects.create(post=post, social_account=account, status="pending_client")
+        data = self.context(self.request())
+        self.assertEqual(len(data["daily_actions"]), 1)
