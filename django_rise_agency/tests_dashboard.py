@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from django.http import Http404, HttpResponse
 from django.test import RequestFactory, TestCase
+from django.utils import timezone
 
 from apps.accounts.models import User
 from apps.composer.models import PlatformPost, Post
@@ -89,9 +90,6 @@ class AgencyDashboardTests(TestCase):
         self.assertEqual(data["summary"]["posts"], 1)
 
     def test_daily_actions_are_limited_to_authorized_workspace(self):
-        from apps.composer.models import PlatformPost
-        from django.utils import timezone
-
         one = Post.objects.filter(workspace=self.ours).first()
         other = Post.objects.filter(workspace=self.unauthorized).first()
         account_a = SocialAccount.objects.create(
@@ -111,8 +109,6 @@ class AgencyDashboardTests(TestCase):
         self.assertEqual(data["daily_actions"][0]["post"].pk, one.pk)
 
     def test_daily_actions_do_not_duplicate_post_across_channels(self):
-        from apps.composer.models import PlatformPost
-
         post = Post.objects.filter(workspace=self.ours).first()
         for platform, native_id in (("facebook", "daily-fb-3"), ("instagram", "daily-ig-3")):
             account = SocialAccount.objects.create(
