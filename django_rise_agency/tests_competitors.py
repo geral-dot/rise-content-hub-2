@@ -24,7 +24,8 @@ class CompetitorObservationsTests(TestCase):
         cls.org = cls.org_member.organization
         cls.ws = Workspace.objects.create(organization=cls.org, name="Marca autorizada")
         cls.ws_member = WorkspaceMembership.objects.create(
-            workspace=cls.ws, user=cls.user,
+            workspace=cls.ws,
+            user=cls.user,
             workspace_role=WorkspaceMembership.WorkspaceRole.OWNER,
         )
         cls.other_org = Organization.objects.create(name="Organização externa")

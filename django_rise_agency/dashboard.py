@@ -85,9 +85,9 @@ def agency_dashboard(request):
     # Ação diária: apenas conteúdos de clientes autorizados. Cada Post é
     # apresentado uma vez, mesmo quando tem vários canais associados.
     workable_ids = [
-        ws.pk for ws in clients
-        if user_memberships.get(ws.pk)
-        and user_memberships[ws.pk].effective_permissions.get("create_posts", False)
+        ws.pk
+        for ws in clients
+        if user_memberships.get(ws.pk) and user_memberships[ws.pk].effective_permissions.get("create_posts", False)
     ]
     visible_ids = client_ids if is_manager else workable_ids
     now = timezone.now()
@@ -118,13 +118,15 @@ def agency_dashboard(request):
             label, urgency = "Publicação nos próximos 7 dias", 3
         else:
             continue
-        daily_actions.append({
-            "post": post,
-            "workspace": post.workspace,
-            "label": label,
-            "urgency": urgency,
-            "scheduled_for": scheduled_for,
-        })
+        daily_actions.append(
+            {
+                "post": post,
+                "workspace": post.workspace,
+                "label": label,
+                "urgency": urgency,
+                "scheduled_for": scheduled_for,
+            }
+        )
     daily_actions.sort(key=lambda item: (item["urgency"], item["scheduled_for"] or now))
     daily_actions = daily_actions[:12]
 

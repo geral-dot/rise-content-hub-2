@@ -75,12 +75,16 @@ class AgencyDashboardTests(TestCase):
     def test_status_totals_count_unique_editorial_posts_not_channel_variants(self):
         post = Post.objects.filter(workspace=self.ours).first()
         facebook = SocialAccount.objects.create(
-            workspace=self.ours, platform="facebook",
-            account_platform_id="fb-test-1", account_name="Cliente A Facebook",
+            workspace=self.ours,
+            platform="facebook",
+            account_platform_id="fb-test-1",
+            account_name="Cliente A Facebook",
         )
         instagram = SocialAccount.objects.create(
-            workspace=self.ours, platform="instagram",
-            account_platform_id="ig-test-1", account_name="Cliente A Instagram",
+            workspace=self.ours,
+            platform="instagram",
+            account_platform_id="ig-test-1",
+            account_name="Cliente A Instagram",
         )
         PlatformPost.objects.create(post=post, social_account=facebook, status="scheduled")
         PlatformPost.objects.create(post=post, social_account=instagram, status="scheduled")
@@ -93,12 +97,16 @@ class AgencyDashboardTests(TestCase):
         one = Post.objects.filter(workspace=self.ours).first()
         other = Post.objects.filter(workspace=self.unauthorized).first()
         account_a = SocialAccount.objects.create(
-            workspace=self.ours, platform="facebook",
-            account_platform_id="daily-fb-1", account_name="Authorized",
+            workspace=self.ours,
+            platform="facebook",
+            account_platform_id="daily-fb-1",
+            account_name="Authorized",
         )
         account_b = SocialAccount.objects.create(
-            workspace=self.unauthorized, platform="facebook",
-            account_platform_id="daily-fb-2", account_name="Private",
+            workspace=self.unauthorized,
+            platform="facebook",
+            account_platform_id="daily-fb-2",
+            account_name="Private",
         )
         one.scheduled_at = timezone.now()
         one.save(update_fields=["scheduled_at"])
@@ -112,8 +120,10 @@ class AgencyDashboardTests(TestCase):
         post = Post.objects.filter(workspace=self.ours).first()
         for platform, native_id in (("facebook", "daily-fb-3"), ("instagram", "daily-ig-3")):
             account = SocialAccount.objects.create(
-                workspace=self.ours, platform=platform,
-                account_platform_id=native_id, account_name=platform,
+                workspace=self.ours,
+                platform=platform,
+                account_platform_id=native_id,
+                account_name=platform,
             )
             PlatformPost.objects.create(post=post, social_account=account, status="pending_client")
         data = self.context(self.request())

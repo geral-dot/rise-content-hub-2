@@ -72,11 +72,16 @@ class RiseOperationsTests(TestCase):
 
     def test_report_compares_with_previous_available_month_without_inventing_values(self):
         RiseMonthlyReport.objects.create(
-            workspace=self.ws, period="2026-09", followers=100,
-            reach=800, data_source="Fonte setembro",
+            workspace=self.ws,
+            period="2026-09",
+            followers=100,
+            reach=800,
+            data_source="Fonte setembro",
         )
         RiseMonthlyReport.objects.create(
-            workspace=self.ws, period="2026-11", followers=125,
+            workspace=self.ws,
+            period="2026-11",
+            followers=125,
             data_source="Fonte novembro",
         )
         response = self.client.get(self.url("report_detail") + "?period=2026-11")

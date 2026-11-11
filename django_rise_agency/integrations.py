@@ -122,9 +122,7 @@ def integrations(request):
     # social connection; org admin status alone does not grant workspace actions.
     account_workspaces = []
     memberships = (
-        WorkspaceMembership.objects.filter(
-            user=request.user, workspace__organization=org, workspace__is_archived=False
-        )
+        WorkspaceMembership.objects.filter(user=request.user, workspace__organization=org, workspace__is_archived=False)
         .select_related("workspace", "custom_role")
         .order_by("workspace__name")
     )
