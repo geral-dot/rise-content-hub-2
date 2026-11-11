@@ -164,6 +164,14 @@ class RiseOperationsTests(TestCase):
         self.assertEqual(post.platform_posts.count(), 0)
         mock_post.assert_called_once()
 
+    def test_integration_page_links_only_to_authorized_workspace(self):
+        page = self.client.get(reverse("rise_agency:integrations"))
+        self.assertEqual(page.status_code, 200)
+        connect_url = reverse("social_accounts:connect", kwargs={"workspace_id": self.ws.pk})
+        self.assertContains(page, connect_url)
+        foreign_url = reverse("social_accounts:connect", kwargs={"workspace_id": self.foreign_ws.pk})
+        self.assertNotContains(page, foreign_url)
+
     def test_admin_only_integration_configuration(self):
         self.org_member.org_role = OrgMembership.OrgRole.MEMBER
         self.org_member.save(update_fields=["org_role"])
