@@ -6,9 +6,10 @@ from django.http import Http404, HttpResponse
 from django.test import RequestFactory, TestCase
 
 from apps.accounts.models import User
-from apps.composer.models import Post
+from apps.composer.models import PlatformPost, Post
 from apps.members.models import OrgMembership, WorkspaceMembership
 from apps.organizations.models import Organization
+from apps.social_accounts.models import SocialAccount
 from apps.workspaces.models import Workspace
 
 from .dashboard import agency_dashboard
@@ -69,3 +70,20 @@ class AgencyDashboardTests(TestCase):
         )
         with self.assertRaises(Http404):
             self.context(self.request(membership=foreign_membership))
+
+    def test_status_totals_count_unique_editorial_posts_not_channel_variants(self):
+        post = Post.objects.filter(workspace=self.ours).first()
+        facebook = SocialAccount.objects.create(
+            workspace=self.ours, platform="facebook",
+            account_platform_id="fb-test-1", account_name="Cliente A Facebook",
+        )
+        instagram = SocialAccount.objects.create(
+            workspace=self.ours, platform="instagram",
+            account_platform_id="ig-test-1", account_name="Cliente A Instagram",
+        )
+        PlatformPost.objects.create(post=post, social_account=facebook, status="scheduled")
+        PlatformPost.objects.create(post=post, social_account=instagram, status="scheduled")
+        data = self.context(self.request())
+        self.assertEqual(data["clients"][0]["scheduled"], 1)
+        self.assertEqual(data["summary"]["scheduled"], 1)
+        self.assertEqual(data["summary"]["posts"], 1)
