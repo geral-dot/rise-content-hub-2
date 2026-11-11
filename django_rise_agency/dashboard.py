@@ -1,6 +1,7 @@
 """Vista geral da agência RISE: só leitura e com limites de organização/permissões."""
 
 from collections import defaultdict
+from datetime import timedelta
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from django.contrib.auth.decorators import login_required
@@ -81,6 +82,52 @@ def agency_dashboard(request):
         )
     )
 
+    # Ação diária: apenas conteúdos de clientes autorizados. Cada Post é
+    # apresentado uma vez, mesmo quando tem vários canais associados.
+    workable_ids = [
+        ws.pk for ws in clients
+        if user_memberships.get(ws.pk)
+        and user_memberships[ws.pk].effective_permissions.get("create_posts", False)
+    ]
+    visible_ids = client_ids if is_manager else workable_ids
+    now = timezone.now()
+    upcoming_limit = now + timedelta(days=7)
+    next_posts = (
+        Post.objects.filter(
+            workspace_id__in=visible_ids,
+            platform_posts__status__in=["pending_review", "pending_client", "scheduled", "failed"],
+        )
+        .distinct()
+        .select_related("workspace")
+        .prefetch_related("platform_posts")
+        .order_by("scheduled_at", "-created_at")[:80]
+    )
+    daily_actions = []
+    for post in next_posts:
+        statuses = {variant.status for variant in post.platform_posts.all()}
+        scheduled_for = post.scheduled_at
+        if "failed" in statuses:
+            label, urgency = "Falha de publicação", 0
+        elif "pending_client" in statuses:
+            label, urgency = "A aguardar aprovação do cliente", 1
+        elif "pending_review" in statuses:
+            label, urgency = "A aguardar revisão interna", 2
+        elif "scheduled" in statuses and scheduled_for and scheduled_for < now:
+            label, urgency = "Agendamento por verificar", 0
+        elif "scheduled" in statuses and scheduled_for and scheduled_for <= upcoming_limit:
+            label, urgency = "Publicação nos próximos 7 dias", 3
+        else:
+            continue
+        daily_actions.append({
+            "post": post,
+            "workspace": post.workspace,
+            "label": label,
+            "urgency": urgency,
+            "scheduled_for": scheduled_for,
+        })
+    daily_actions.sort(key=lambda item: (item["urgency"], item["scheduled_for"] or now))
+    daily_actions = daily_actions[:12]
+
     summary = defaultdict(int)
     rows = []
     for workspace in clients:
@@ -118,6 +165,7 @@ def agency_dashboard(request):
             "client_count": len(rows),
             "summary": dict(summary),
             "period": period,
+            "daily_actions": daily_actions,
             "is_manager": is_manager,
         },
     )
