@@ -23,7 +23,20 @@
       </div>
       {% endfor %}
     </div>
-    <p class="rise-tools-muted">A ligação da conta social é feita no espaço de trabalho do cliente, em <strong>Contas sociais</strong>, após configurar a aplicação. Os estados acima são consultados na configuração real da organização, sem expor chaves.</p>
+    <p class="rise-tools-muted">Depois de configurar as credenciais, selecione a marca para autorizar a conta social. Só são mostradas marcas nas quais tem permissão para gerir ligações.</p>
+    {% if account_workspaces %}
+    <div class="rise-tools-network-list" aria-label="Ligar contas por marca">
+      {% for workspace in account_workspaces %}
+      <div class="rise-tools-network">
+        <div><strong>{{ workspace.name }}</strong><small>Autorizar ou rever as contas ligadas a esta marca</small></div>
+        <a class="rise-tools-link" href="{% url 'social_accounts:connect' workspace_id=workspace.id %}">Ligar conta social ↗</a>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="rise-tools-muted">Não existem marcas às quais tenha permissão para ligar contas sociais. Verifique a atribuição de permissões no espaço de trabalho.</p>
+    {% endif %}
+    <p class="rise-tools-muted">Os estados acima são consultados na configuração real da organização, sem expor chaves. Uma ligação só pode ser considerada operacional depois de uma autorização OAuth bem-sucedida e de um teste real.</p>
     {% if request.user.is_superuser %}
     <a class="rise-tools-link" href="/admin/credentials/platformcredential/">Configurar aplicações Meta e LinkedIn na administração ↗</a>
     {% else %}
