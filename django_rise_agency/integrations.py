@@ -19,7 +19,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from apps.composer.models import Post
 from apps.credentials.models import PlatformCredential, derive_is_configured
-from apps.members.models import OrgMembership
+from apps.members.models import OrgMembership, WorkspaceMembership
 from apps.social_accounts.models import SocialAccount
 
 from .client_center import _client_access
@@ -118,6 +118,19 @@ def integrations(request):
                 ),
             }
         )
+    # Show only workspaces where the signed-in user can actually manage the
+    # social connection; org admin status alone does not grant workspace actions.
+    account_workspaces = []
+    memberships = (
+        WorkspaceMembership.objects.filter(
+            user=request.user, workspace__organization=org, workspace__is_archived=False
+        )
+        .select_related("workspace", "custom_role")
+        .order_by("workspace__name")
+    )
+    for member in memberships:
+        if member.effective_permissions.get("manage_social_accounts", False):
+            account_workspaces.append(member.workspace)
     mailchimp_key = _secret(org, "mailchimp")
     openai_key = _secret(org, "openai")
     configured_dc = (
@@ -131,6 +144,7 @@ def integrations(request):
         "django_rise_agency/integrations.html",
         {
             "networks": networks,
+            "account_workspaces": account_workspaces,
             "mailchimp_ready": bool(mailchimp_key and _mailchimp_dc(mailchimp_key, configured_dc)),
             "openai_ready": bool(openai_key),
             "has_any_workspace": org.workspaces.filter(is_archived=False).exists(),
