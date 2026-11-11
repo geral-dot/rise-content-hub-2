@@ -7,7 +7,7 @@ from django.contrib import admin
 from django.urls import include, path, re_path
 from django.views.static import serve
 
-from apps.accounts.views import health_check
+from apps.accounts.views import dashboard as rise_dashboard, health_check
 from apps.api.api import api as agent_api
 from apps.oauth_server import views as oauth_views
 
@@ -16,6 +16,9 @@ logger = logging.getLogger(__name__)
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("health/", health_check, name="health_check"),
+    # RISE entry points: authenticated users land on their workspace calendar.
+    path("rise", rise_dashboard, name="rise_home"),
+    path("rise/", rise_dashboard, name="rise_home_slash"),
     path("accounts/", include("apps.accounts.urls")),
     path("accounts/", include("allauth.urls")),
     path("organizations/", include("apps.organizations.urls")),
