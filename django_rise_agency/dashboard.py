@@ -53,14 +53,16 @@ def agency_dashboard(request):
         for item in Post.objects.filter(workspace_id__in=client_ids).values("workspace_id").annotate(total=Count("id"))
     }
 
+    # A single editorial piece may target several social accounts. Count distinct
+    # posts per state to avoid inflating the agency overview by channel variants.
     status_totals = {
         item["post__workspace_id"]: item
         for item in PlatformPost.objects.filter(post__workspace_id__in=client_ids)
         .values("post__workspace_id")
         .annotate(
-            pending=Count("id", filter=Q(status__in=["pending_review", "pending_client"])),
-            scheduled=Count("id", filter=Q(status="scheduled")),
-            published=Count("id", filter=Q(status="published")),
+            pending=Count("post_id", filter=Q(status__in=["pending_review", "pending_client"]), distinct=True),
+            scheduled=Count("post_id", filter=Q(status="scheduled"), distinct=True),
+            published=Count("post_id", filter=Q(status="published"), distinct=True),
         )
     }
 
