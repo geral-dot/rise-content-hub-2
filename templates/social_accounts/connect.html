@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block page_title %}Connect Social Account{% endblock %}
+{% block page_title %}Ligar conta social{% endblock %}
 {% block content %}
 <div class="max-w-4xl">
     <!-- Header -->
     <div class="mb-8">
         <a href="{% url 'social_accounts:list' workspace_id=workspace_id %}" class="inline-flex items-center gap-1.5 text-sm text-stone-500 hover:text-stone-700 transition-colors mb-4">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-            Back to Social Accounts
+            Voltar às contas sociais
         </a>
         <h2 class="text-xl font-semibold text-stone-900">Ligar uma rede social</h2>
         <p class="text-sm text-stone-500 mt-1">Escolhe a rede social que pretendes associar a esta marca.</p>
@@ -47,19 +47,19 @@
                 <div class="flex-1 min-w-0">
                     <h3 class="text-sm font-semibold text-stone-900">{{ label }}</h3>
                     <p class="text-xs text-stone-400 mt-0.5">
-                        {% if value == 'facebook' %}Your Pages &amp; Groups
-                        {% elif value == 'instagram' %}For accounts linked to a Facebook Page
-                        {% elif value == 'instagram_login' %}Sign in with Instagram &middot; no Facebook needed
-                        {% elif value == 'linkedin_personal' %}Personal profile
-                        {% elif value == 'linkedin_company' %}Company pages
-                        {% elif value == 'tiktok' %}Video content
-                        {% elif value == 'youtube' %}Videos &amp; Shorts
-                        {% elif value == 'pinterest' %}Pins &amp; Boards
-                        {% elif value == 'threads' %}Text &amp; Media
+                        {% if value == 'facebook' %}Páginas e grupos
+                        {% elif value == 'instagram' %}Para contas ligadas a uma página de Facebook
+                        {% elif value == 'instagram_login' %}Iniciar sessão pelo Instagram, sem Facebook
+                        {% elif value == 'linkedin_personal' %}Perfil pessoal
+                        {% elif value == 'linkedin_company' %}Páginas de empresa
+                        {% elif value == 'tiktok' %}Conteúdos de vídeo
+                        {% elif value == 'youtube' %}Vídeos e Shorts
+                        {% elif value == 'pinterest' %}Pins e quadros
+                        {% elif value == 'threads' %}Texto e multimédia
                         {% elif value == 'bluesky' %}AT Protocol
-                        {% elif value == 'google_business' %}Local posts
-                        {% elif value == 'mastodon' %}Federated social
-                        {% elif value == 'devto' %}Articles &amp; posts
+                        {% elif value == 'google_business' %}Publicações locais
+                        {% elif value == 'mastodon' %}Rede federada
+                        {% elif value == 'devto' %}Artigos e publicações
                         {% endif %}
                     </p>
                 </div>
@@ -77,13 +77,13 @@
             {% else %}
             <div class="mt-4">
                 <span class="w-full inline-flex items-center justify-center px-4 py-2 text-xs font-semibold text-stone-400 bg-stone-100 rounded-full cursor-not-allowed">
-                    Not Configured
+                    Por configurar
                 </span>
             </div>
             {% endif %}
 
             {% if value not in configured_platforms and value != 'youtube' %}
-            <div class="absolute inset-0 rounded-xl bg-white/40 cursor-not-allowed" title="Platform credentials not configured. Contact your administrator."></div>
+            <div class="absolute inset-0 rounded-xl bg-white/40 cursor-not-allowed" title="Credenciais por configurar. Contacte a administração."></div>
             {% endif %}
         </div>
         {% endfor %}

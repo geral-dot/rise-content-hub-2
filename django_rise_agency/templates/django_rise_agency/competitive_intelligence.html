@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Concorrência · {{ workspace.name }} · RISE Content Hub{% endblock %}
+{% block content %}
+<div class="rise-client-hub">
+  <nav class="rise-hub-breadcrumb" aria-label="Navegação">
+    <a href="{% url 'rise_agency:dashboard' %}">Visão geral</a><span>›</span>
+    <a href="{% url 'rise_agency:client_center' client_id=workspace.id %}">{{ workspace.name }}</a><span>›</span>
+    <strong>Inteligência competitiva</strong>
+  </nav>
+  <section class="rise-hub-hero">
+    <div class="rise-hub-hero-top"><span class="rise-eyebrow">RISE / INTELIGÊNCIA ESTRATÉGICA</span></div>
+    <div class="rise-hub-hero-copy">
+      <h1>Concorrência e oportunidades</h1>
+      <p>Observações verificadas, fontes públicas e oportunidades relevantes para {{ workspace.name }}.</p>
+    </div>
+  </section>
+  <div class="rise-hub-grid">
+    <section class="rise-hub-panel" aria-labelledby="rise-competitive-list">
+      <div class="rise-hub-panel-head"><h2 id="rise-competitive-list">Histórico de observações</h2></div>
+      {% if observations %}
+      <div class="rise-hub-post-list">
+      {% for entry in observations %}
+        <article class="rise-hub-post">
+          <div class="rise-hub-post-main">
+            <span class="rise-hub-type">{{ entry.get_platform_display }} · {{ entry.observed_on|date:"d/m/Y" }}</span>
+            <strong>{{ entry.competitor_name }}</strong>
+            <p>{{ entry.observation|linebreaksbr }}</p>
+            {% if entry.opportunity %}<p><strong>Oportunidade:</strong> {{ entry.opportunity|linebreaksbr }}</p>{% endif %}
+            <p><a href="{{ entry.source_url }}" target="_blank" rel="noopener noreferrer">Ver fonte pública ↗</a></p>
+          </div>
+        </article>
+      {% endfor %}
+      </div>
+      {% else %}
+        <div class="rise-hub-empty"><strong>Ainda não existem observações registadas.</strong>
+          <p>Adiciona a primeira análise com uma fonte verificável e a respetiva data.</p>
+        </div>
+      {% endif %}
+    </section>
+    {% if can_edit %}
+    <aside class="rise-hub-sidebar">
+      <section class="rise-hub-panel" aria-labelledby="rise-competitor-new">
+        <p class="rise-eyebrow">NOVA OBSERVAÇÃO</p>
+        <h2 id="rise-competitor-new">Adicionar evidência</h2>
+        <form method="post" class="rise-brand-form">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+          {% for field in form %}
+          <div class="rise-field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {{ field.errors }}
+          </div>
+          {% endfor %}
+          <div class="rise-form-actions"><button type="submit">Guardar observação ↗</button></div>
+        </form>
+      </section>
+    </aside>
+    {% endif %}
+  </div>
+  <p class="rise-data-note">As observações são introduzidas por utilizadores autorizados. Não representam recolha automática nem validam indicadores que as APIs não disponibilizam.</p>
+</div>
+{% endblock %}

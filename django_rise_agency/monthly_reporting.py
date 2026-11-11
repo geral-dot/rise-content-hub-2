@@ -63,6 +63,22 @@ class RiseMonthlyReportForm(forms.ModelForm):
 
 def _report_context(workspace, period, report):
     retainer = RiseRetainer.objects.filter(workspace_id=workspace.id, period=period).first()
+    previous = (
+        RiseMonthlyReport.objects.filter(workspace_id=workspace.id, period__lt=period).order_by("-period").first()
+    )
+    comparison = []
+    for field, label in KPI_FIELDS:
+        current_value = getattr(report, field) if report else None
+        previous_value = getattr(previous, field) if previous else None
+        delta = current_value - previous_value if current_value is not None and previous_value is not None else None
+        comparison.append(
+            {
+                "label": label,
+                "current": current_value,
+                "previous": previous_value,
+                "delta": delta,
+            }
+        )
     classified = RiseEditorialAssignment.objects.filter(post__workspace_id=workspace.pk, period=period)
     counts = classified.aggregate(
         posts=Count("pk", filter=Q(format="post"), distinct=True),
@@ -76,6 +92,8 @@ def _report_context(workspace, period, report):
         "workspace": workspace,
         "period": period,
         "report": report,
+        "previous_report": previous,
+        "comparison": comparison,
         "retainer": retainer,
         "counts": counts,
         "kpis": [

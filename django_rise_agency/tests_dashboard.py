@@ -4,11 +4,13 @@ from unittest.mock import patch
 
 from django.http import Http404, HttpResponse
 from django.test import RequestFactory, TestCase
+from django.utils import timezone
 
 from apps.accounts.models import User
-from apps.composer.models import Post
+from apps.composer.models import PlatformPost, Post
 from apps.members.models import OrgMembership, WorkspaceMembership
 from apps.organizations.models import Organization
+from apps.social_accounts.models import SocialAccount
 from apps.workspaces.models import Workspace
 
 from .dashboard import agency_dashboard
@@ -69,3 +71,60 @@ class AgencyDashboardTests(TestCase):
         )
         with self.assertRaises(Http404):
             self.context(self.request(membership=foreign_membership))
+
+    def test_status_totals_count_unique_editorial_posts_not_channel_variants(self):
+        post = Post.objects.filter(workspace=self.ours).first()
+        facebook = SocialAccount.objects.create(
+            workspace=self.ours,
+            platform="facebook",
+            account_platform_id="fb-test-1",
+            account_name="Cliente A Facebook",
+        )
+        instagram = SocialAccount.objects.create(
+            workspace=self.ours,
+            platform="instagram",
+            account_platform_id="ig-test-1",
+            account_name="Cliente A Instagram",
+        )
+        PlatformPost.objects.create(post=post, social_account=facebook, status="scheduled")
+        PlatformPost.objects.create(post=post, social_account=instagram, status="scheduled")
+        data = self.context(self.request())
+        self.assertEqual(data["clients"][0]["scheduled"], 1)
+        self.assertEqual(data["summary"]["scheduled"], 1)
+        self.assertEqual(data["summary"]["posts"], 1)
+
+    def test_daily_actions_are_limited_to_authorized_workspace(self):
+        one = Post.objects.filter(workspace=self.ours).first()
+        other = Post.objects.filter(workspace=self.unauthorized).first()
+        account_a = SocialAccount.objects.create(
+            workspace=self.ours,
+            platform="facebook",
+            account_platform_id="daily-fb-1",
+            account_name="Authorized",
+        )
+        account_b = SocialAccount.objects.create(
+            workspace=self.unauthorized,
+            platform="facebook",
+            account_platform_id="daily-fb-2",
+            account_name="Private",
+        )
+        one.scheduled_at = timezone.now()
+        one.save(update_fields=["scheduled_at"])
+        PlatformPost.objects.create(post=one, social_account=account_a, status="failed")
+        PlatformPost.objects.create(post=other, social_account=account_b, status="failed")
+        data = self.context(self.request())
+        self.assertEqual(len(data["daily_actions"]), 1)
+        self.assertEqual(data["daily_actions"][0]["post"].pk, one.pk)
+
+    def test_daily_actions_do_not_duplicate_post_across_channels(self):
+        post = Post.objects.filter(workspace=self.ours).first()
+        for platform, native_id in (("facebook", "daily-fb-3"), ("instagram", "daily-ig-3")):
+            account = SocialAccount.objects.create(
+                workspace=self.ours,
+                platform=platform,
+                account_platform_id=native_id,
+                account_name=platform,
+            )
+            PlatformPost.objects.create(post=post, social_account=account, status="pending_client")
+        data = self.context(self.request())
+        self.assertEqual(len(data["daily_actions"]), 1)

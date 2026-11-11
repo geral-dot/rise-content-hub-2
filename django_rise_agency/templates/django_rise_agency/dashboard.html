@@ -18,6 +18,41 @@
         <div class="rise-stat"><span class="rise-stat-icon">◷</span><div class="rise-stat-number">{{ summary.pending|default:0 }}</div><div class="rise-stat-label">Entregas em aprovação</div></div>
         <div class="rise-stat"><span class="rise-stat-icon">↗</span><div class="rise-stat-number">{{ summary.scheduled|default:0 }}</div><div class="rise-stat-label">Entregas agendadas</div></div>
     </section>
+    <section class="rise-client-section" aria-labelledby="rise-daily-title">
+        <div class="rise-section-heading">
+            <div>
+                <p class="rise-eyebrow">PRIORIDADES OPERACIONAIS</p>
+                <h2 id="rise-daily-title">O meu dia <span class="rise-counter">{{ daily_actions|length }}</span></h2>
+                <p>Conteúdos que precisam de atenção ou têm publicação próxima.</p>
+            </div>
+        </div>
+        {% if daily_actions %}
+        <div class="rise-clients-grid">
+            {% for item in daily_actions %}
+            <article class="rise-client-card">
+                <div class="rise-client-card-top">
+                    <div class="rise-client-mark">{{ item.workspace.name|first|upper }}</div>
+                    <span class="rise-client-pill {% if item.urgency == 0 %}attention{% endif %}">{{ item.label }}</span>
+                </div>
+                <h3>{{ item.workspace.name }}</h3>
+                <p class="rise-client-description">{{ item.post.title|default:item.post.caption|default:"Conteúdo sem título"|truncatechars:100 }}</p>
+                <div class="rise-client-meta">
+                    {% if item.scheduled_for %}<span>Previsto para {{ item.scheduled_for|date:"d/m/Y H:i" }}</span>
+                    {% else %}<span>Sem data definida</span>{% endif %}
+                </div>
+                <div class="rise-client-actions">
+                    <a class="rise-client-mainlink" href="{% url 'rise_agency:client_center' client_id=item.workspace.id %}">Abrir cliente ↗</a>
+                    {% if item.post.id %}
+                    <a href="{% url 'composer:compose_edit' workspace_id=item.workspace.id post_id=item.post.id %}">Ver conteúdo ↗</a>
+                    {% endif %}
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="rise-empty-state"><strong>Sem ações editoriais prioritárias.</strong><p>Não há falhas, aprovações pendentes ou agendamentos próximos nos conteúdos a que tens acesso.</p></div>
+        {% endif %}
+    </section>
     <section class="rise-client-section" aria-labelledby="rise-clients-title">
         <div class="rise-section-heading">
             <div><p class="rise-eyebrow">OPERAÇÃO MULTICLIENTE</p><h2 id="rise-clients-title">Carteira de clientes <span class="rise-counter">{{ client_count }}</span></h2></div>

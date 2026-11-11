@@ -70,6 +70,26 @@ class RiseOperationsTests(TestCase):
         self.assertIn("attachment", pdf["Content-Disposition"])
         self.assertEqual(pdf["Cache-Control"], "private, no-store")
 
+    def test_report_compares_with_previous_available_month_without_inventing_values(self):
+        RiseMonthlyReport.objects.create(
+            workspace=self.ws,
+            period="2026-09",
+            followers=100,
+            reach=800,
+            data_source="Fonte setembro",
+        )
+        RiseMonthlyReport.objects.create(
+            workspace=self.ws,
+            period="2026-11",
+            followers=125,
+            data_source="Fonte novembro",
+        )
+        response = self.client.get(self.url("report_detail") + "?period=2026-11")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Comparação com 2026-09")
+        self.assertContains(response, "+25")
+        self.assertNotContains(response, "Anterior: 800")
+
     def test_kpis_require_source_and_no_fabricated_zero(self):
         response = self.client.post(self.url("report_save"), {"period": "2026-11", "reach": "100"})
         self.assertEqual(response.status_code, 400)
@@ -163,6 +183,14 @@ class RiseOperationsTests(TestCase):
         self.assertEqual(post.caption, "Texto para a marca.")
         self.assertEqual(post.platform_posts.count(), 0)
         mock_post.assert_called_once()
+
+    def test_integration_page_links_only_to_authorized_workspace(self):
+        page = self.client.get(reverse("rise_agency:integrations"))
+        self.assertEqual(page.status_code, 200)
+        connect_url = reverse("social_accounts:connect", kwargs={"workspace_id": self.ws.pk})
+        self.assertContains(page, connect_url)
+        foreign_url = reverse("social_accounts:connect", kwargs={"workspace_id": self.foreign_ws.pk})
+        self.assertNotContains(page, foreign_url)
 
     def test_admin_only_integration_configuration(self):
         self.org_member.org_role = OrgMembership.OrgRole.MEMBER

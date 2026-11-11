@@ -23,6 +23,7 @@
       {% if is_manager %}<a class="rise-hub-button ghost" href="{% url 'rise_agency:client_settings' client_id=workspace.id %}">Avença e identidade ↗</a>{% endif %}
       {% if can_create or is_manager %}<a class="rise-hub-button ghost" href="{% url 'rise_agency:report_detail' client_id=workspace.id %}?period={{ period }}">KPIs e relatório ↗</a>{% endif %}
       {% if can_create %}<a class="rise-hub-button ghost" href="{% url 'rise_agency:ai_editor' client_id=workspace.id %}">Gerar texto com IA ↗</a>{% endif %}
+      {% if can_create or is_manager %}<a class="rise-hub-button ghost" href="{% url 'rise_agency:competitors' client_id=workspace.id %}">Analisar concorrência ↗</a>{% endif %}
       {% if is_manager %}<a class="rise-hub-button ghost" href="{% url 'rise_agency:integrations' %}">Integrações ↗</a>{% endif %}
     </div>
   </section>

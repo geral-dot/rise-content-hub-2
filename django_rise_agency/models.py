@@ -181,3 +181,41 @@ class RiseServiceCredential(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["organization", "provider"], name="rise_service_org_provider")]
+
+
+class RiseCompetitorObservation(models.Model):
+    """Human-verified competitor evidence; never fabricate inaccessible metrics."""
+
+    workspace = models.ForeignKey(
+        "workspaces.Workspace",
+        on_delete=models.CASCADE,
+        related_name="rise_competitor_observations",
+    )
+    competitor_name = models.CharField(max_length=150)
+    platform = models.CharField(
+        max_length=20,
+        choices=[
+            ("website", "Website"),
+            ("facebook", "Facebook"),
+            ("instagram", "Instagram"),
+            ("linkedin", "LinkedIn"),
+            ("other", "Outro"),
+        ],
+    )
+    source_url = models.URLField(max_length=1000)
+    observed_on = models.DateField()
+    observation = models.TextField(max_length=4000)
+    opportunity = models.TextField(max_length=4000, blank=True, default="")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="rise_competitor_observations",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-observed_on", "-created_at"]
+        indexes = [
+            models.Index(fields=["workspace", "observed_on"], name="rise_comp_ws_observed_idx"),
+        ]

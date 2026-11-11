@@ -51,6 +51,25 @@
         <p class="rise-report-helper">Obrigatória quando existem KPIs. Ex.: GA4, Meta Business Suite, LinkedIn Analytics, recolha de 01 a 30/11.</p>
       </div>
     </section>
+    {% if previous_report and report %}
+    <section class="rise-report-panel" aria-labelledby="rise-kpi-compare">
+      <div class="rise-report-panel-head">
+        <div><span class="rise-eyebrow">EVOLUÇÃO MENSAL</span><h2 id="rise-kpi-compare">Comparação com {{ previous_report.period }}</h2></div>
+      </div>
+      <div class="rise-report-summary-grid">
+        {% for metric in comparison %}
+        {% if metric.delta is not None %}
+        <div>
+          <span>{{ metric.label }}</span>
+          <strong>{% if metric.delta > 0 %}+{% endif %}{{ metric.delta }}</strong>
+          <small>Anterior: {{ metric.previous }} · Atual: {{ metric.current }}</small>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+      <p class="rise-report-helper">Variação absoluta face ao último mês com relatório. Uma diferença positiva não significa necessariamente melhoria (por exemplo, investimento publicitário). Confirma a comparabilidade das fontes.</p>
+    </section>
+    {% endif %}
     <section class="rise-report-panel" aria-labelledby="rise-report-copy">
       <div class="rise-report-panel-head"><div><span class="rise-eyebrow">02 / INTERPRETAÇÃO</span><h2 id="rise-report-copy">Análise e recomendações</h2></div></div>
       <div class="rise-report-field wide"><label for="{{ form.summary.id_for_label }}">Síntese de resultados</label>{{ form.summary }}{{ form.summary.errors }}</div>
